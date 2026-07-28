@@ -42,6 +42,11 @@ class Report:
     skill_lift_pvalue: float | None = None
     efficiency_uplift: float | None = None  # (C1 효율 / C0 효율) - 1; inf 가능
     efficiency_basis: str = ""              # "성공 횟수 / 총 비용" 또는 "성공 횟수 / 총 시간"
+    # 아낀 시간 (기본 측정): C0·C1 둘 다 성공한 쌍 한정, 쌍당 (C0 시간 - C1 시간). 양수 = 스킬이 빠름
+    time_saved_mean: float | None = None
+    time_saved_pct: float | None = None     # C0 시간 대비 단축 비율
+    time_saved_ci: tuple[float, float] | None = None
+    n_both_success_pairs: int = 0
     failure_modes: dict[str, int] = field(default_factory=dict)
     coverage: dict | None = None
 
@@ -82,6 +87,17 @@ def build_report(store: Store, coverage: dict | None = None, seed: int = 42) -> 
         s1 = report.conditions.get("C1_FORCED_SKILL")
         if s0 and s1:
             report.efficiency_uplift, report.efficiency_basis = _efficiency_uplift(s0, s1)
+
+        # 아낀 시간 — 둘 다 성공한 쌍 한정 짝 비교 (기본 측정, PLAN.md §16)
+        time_diffs, base_times = _both_success_time_diffs(c0, c1)
+        report.n_both_success_pairs = len(time_diffs)
+        if time_diffs:
+            mean, lo, hi = paired_bootstrap_ci(time_diffs, seed=seed)
+            report.time_saved_mean = mean
+            report.time_saved_ci = (lo, hi)
+            total_base = sum(base_times)
+            report.time_saved_pct = sum(time_diffs) / total_base if total_base > 0 else None
+
         diffs = _per_task_diff(c0, c1)
         mean, lo, hi = paired_bootstrap_ci(diffs, seed=seed)
         report.skill_lift = mean
@@ -123,6 +139,26 @@ def format_uplift(v: float | None) -> str:
     return f"{v:+.1%}"
 
 
+def _both_success_time_diffs(c0: list[dict], c1: list[dict]) -> tuple[list[float], list[float]]:
+    """같은 태스크·같은 반복 회차에서 둘 다 성공한 쌍의 (C0 시간 - C1 시간) 목록.
+
+    성공당 시간 비교는 조건마다 성공한 문제 집합이 달라 왜곡됨 —
+    같은 일을 둘 다 해낸 쌍만 봐야 스킬이 아껴준 순수 시간이 나온다.
+    반환: (시간차 목록, 해당 쌍의 C0 시간 목록 — 단축률 분모용)
+    """
+    key = lambda r: (r["task_id"], r["repeat_index"])
+    m0 = {key(r): r for r in c0}
+    m1 = {key(r): r for r in c1}
+    diffs: list[float] = []
+    base: list[float] = []
+    for k in sorted(set(m0) & set(m1)):
+        r0, r1 = m0[k], m1[k]
+        if r0["success"] and r1["success"]:
+            diffs.append(r0["wall_time"] - r1["wall_time"])
+            base.append(r0["wall_time"])
+    return diffs, base
+
+
 def _pair_by_repeat(runs_a: list[dict], runs_b: list[dict]) -> tuple[list[bool], list[bool]]:
     key = lambda r: (r["task_id"], r["repeat_index"])
     map_a = {key(r): bool(r["success"]) for r in runs_a}
@@ -151,6 +187,16 @@ def render_markdown(report: Report, title: str = "Skill Evaluation Report") -> s
         lines.append(f"({note})")
     else:
         lines.append("**효율 상승: 측정 불가** (C0/C1 비교 쌍 없음)")
+    if report.n_both_success_pairs:
+        lo, hi = report.time_saved_ci
+        pct = f", C0 대비 {report.time_saved_pct:.0%} 단축" if report.time_saved_pct is not None else ""
+        lines.append(
+            f"**아낀 시간: 성공 쌍당 평균 {report.time_saved_mean:+.2f}s**"
+            f" (둘 다 성공한 쌍 n={report.n_both_success_pairs}{pct},"
+            f" 95% CI {lo:+.2f}~{hi:+.2f}s; 양수 = 스킬이 빠름)"
+        )
+    else:
+        lines.append("**아낀 시간: 측정 불가** (둘 다 성공한 쌍 없음)")
     lines.append("")
 
     lines += ["## 조건별 결과", "",

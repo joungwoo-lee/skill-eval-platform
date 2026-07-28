@@ -99,7 +99,7 @@ def _cmd_batch(args: argparse.Namespace) -> int:
         tasks = [t for t in all_tasks if t.required_skill == skill.skill_id]
         if not tasks:
             print(f"[skip] {skill.skill_id}: required_skill 매칭 태스크 없음 ({args.tasks_dir})")
-            summary.append((skill.skill_id, 0, None, None))
+            summary.append((skill.skill_id, 0, None, None, None))
             continue
         db = out_dir / f"{skill.skill_id}.db"
         if db.exists():
@@ -122,16 +122,19 @@ def _cmd_batch(args: argparse.Namespace) -> int:
             render_markdown(report, title=f"Skill Evaluation — {skill.skill_id}@{skill.version}"),
             encoding="utf-8",
         )
-        summary.append((skill.skill_id, len(tasks), report.efficiency_uplift, report.skill_lift))
+        summary.append((skill.skill_id, len(tasks), report.efficiency_uplift,
+                        report.time_saved_mean, report.skill_lift))
         print(f"[done] {skill.skill_id}: tasks={len(tasks)} → {md_path}")
         store.close()
 
     fmt = lambda v: f"{v:+.1%}" if v is not None else "-"
+    fmt_s = lambda v: f"{v:+.2f}s" if v is not None else "-"
     lines = ["# Skill Eval Batch Summary", "",
-             "결론 지표 = **효율 상승 %** (효율 = 성공 횟수/총 비용, C0 대비 C1)", "",
-             "| 스킬 | 태스크 | 효율 상승 | Skill Lift(성공률 %p) |", "|---|---|---|---|"]
-    for sid, ntasks, eff, lift in summary:
-        lines.append(f"| {sid} | {ntasks} | {format_uplift(eff)} | {fmt(lift)} |")
+             "결론 지표 = **효율 상승 %** (효율 = 성공 횟수/총 비용, C0 대비 C1)"
+             " · 아낀 시간 = 둘 다 성공한 쌍당 평균", "",
+             "| 스킬 | 태스크 | 효율 상승 | 아낀 시간 | Skill Lift(성공률 %p) |", "|---|---|---|---|---|"]
+    for sid, ntasks, eff, saved, lift in summary:
+        lines.append(f"| {sid} | {ntasks} | {format_uplift(eff)} | {fmt_s(saved)} | {fmt(lift)} |")
     text = "\n".join(lines) + "\n"
     (out_dir / "summary.md").write_text(text, encoding="utf-8")
     print()

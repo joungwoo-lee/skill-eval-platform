@@ -87,11 +87,28 @@ def test_end_to_end_lift_and_report(task, skill, tmp_path):
     assert report.efficiency_uplift is not None and report.efficiency_uplift > 0
     md = render_markdown(report)
     assert "효율 상승" in md and md.index("결론") < md.index("조건별 결과")
+    assert "아낀 시간" in md  # 기본 측정 — 쌍 없으면 '측정 불가'로라도 표기
+    if report.n_both_success_pairs:
+        assert report.time_saved_mean is not None and report.time_saved_ci is not None
     assert "Skill Lift" in md
 
     # 실패 유형이 하나 이상 분류되어야 한다 (C0 실패 다수)
     assert report.failure_modes
     store.close()
+
+
+def test_both_success_time_diffs_pairs_only():
+    from skill_eval.report import _both_success_time_diffs
+
+    def run(cond, task, rep, success, wall):
+        return {"condition": cond, "task_id": task, "repeat_index": rep,
+                "success": success, "wall_time": wall}
+
+    c0 = [run("C0", "t1", 0, 1, 10.0), run("C0", "t1", 1, 0, 3.0), run("C0", "t2", 0, 1, 8.0)]
+    c1 = [run("C1", "t1", 0, 1, 6.0), run("C1", "t1", 1, 1, 2.0), run("C1", "t2", 0, 0, 9.0)]
+    diffs, base = _both_success_time_diffs(c0, c1)
+    # t1/rep0만 둘 다 성공: 10-6=4. t1/rep1은 C0 실패, t2/rep0은 C1 실패 → 제외
+    assert diffs == [4.0] and base == [10.0]
 
 
 def test_cli_smoke(tmp_path):
