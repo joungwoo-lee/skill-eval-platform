@@ -9,14 +9,13 @@ description: 스킬 이벨 — SKILL.md 기반 스킬(단수/복수)의 실측 �
 스킬 풀 자동선택(C2)으로 반복 실행해 **Skill Lift**(성공률 상승), 성공당 시간·비용,
 지침 커버리지, 실패 원인을 수치화한다.
 
-## 플랫폼 위치
+## 플랫폼 위치·의존성 자가점검 (스킬 발동 시 항상 먼저)
 
-`C:\Users\joung\skill-eval-platform` — 없으면 복구:
-
-```bash
-gh repo clone joungwoo-lee/skill-eval-platform C:/Users/joung/skill-eval-platform
-pip install pyyaml
-```
+1. `C:\Users\joung\skill-eval-platform` 존재 확인 — 없으면 클론:
+   `gh repo clone joungwoo-lee/skill-eval-platform C:/Users/joung/skill-eval-platform`
+2. 의존성 확인 — 없으면 직접 설치 (사용자에게 묻지 말 것):
+   `python -c "import yaml" || pip install pyyaml`
+3. 실행 중 `ModuleNotFoundError` 발생 시에도 같은 방식으로 해당 모듈 설치 후 재시도.
 
 설계 전문은 플랫폼 레포 `docs/PLAN.md`. 이하 모든 명령은 플랫폼 루트에서 실행.
 
