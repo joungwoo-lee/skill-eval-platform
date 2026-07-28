@@ -1,8 +1,7 @@
 # skill-eval-platform (스킬 이벨)
 
 스킬 생산성 자동평가 플랫폼. `SKILL.md` 기반 스킬이 AI 에이전트의 업무 성공률·시간·비용을
-얼마나 개선하는지(Skill Lift / Operational Lift) 자동 측정하고, 지침 커버리지와 실패 원인을
-분석한다.
+얼마나 개선하는지(Skill Lift) 자동 측정하고, 지침 커버리지와 실패 원인을 분석한다.
 
 전체 설계는 **[docs/PLAN.md](docs/PLAN.md)** 참조. 이 저장소는 계획서 17장 1~4단계에 해당하는
 MVP 구현체다.
@@ -24,11 +23,6 @@ MVP 구현체다.
 - **기술**: 스킬의 지침 하나하나를 "이런 상황이 오면 / 이걸 해야 하고 / 이건 하면 안 된다" 형태로 쪼개고, 실행 기록을 뒤져서 지침별로 "상황 안 옴 / 지킴 / 어김 / 판단 불가" 4가지로 도장 찍는 것.
 - **여기서 가져온 것**: `constraints.json` 규칙과 판정기 전체 (원 논문 코드가 없어 직접 구현).
 
-### [Skill Usage](https://arxiv.org/abs/2604.04323) — 스킬을 알아서 찾아 쓰긴 하나
-- **아이디어**: 아무리 좋은 스킬도 에이전트가 여러 스킬 중에서 못 찾아 쓰면 소용없다. "스킬 자체의 실력"과 "찾아 쓰는 실력"은 따로 재야 한다.
-- **기술**: 정답 스킬에 엉뚱한 스킬들을 미끼로 섞어 놓고 제대로 골라 쓰는지 보는 것.
-- **여기서 가져온 것**: C2 자동선택 조건, 미끼 스킬, "스킬은 좋은데 못 찾아서 실패"를 별도 실패 유형으로 분류.
-
 > 통계는 "같은 문제를 두 조건으로 풀었을 때의 짝 비교"에 맞는 표준 검정(McNemar, 부트스트랩 신뢰구간)을 쓴다 — 우연히 몇 번 잘 푼 것과 진짜 효과를 구분하기 위해서다.
 
 ## 구현 범위 (v0.1)
@@ -37,12 +31,12 @@ MVP 구현체다.
 |---|---|
 | §5 시스템 구조 | `skill_eval/` 패키지 (registry / runners / evaluators / analyzers / statistics / report) |
 | §6 태스크 패키지 규격 | `tasks/<domain>/<task-id>/` — task.md, metadata.yaml, environment/initial_state, verifier, oracle |
-| §7 평가 조건 | C0 No Skill / C1 Forced Skill / C2 Auto Discovery |
+| §7 평가 조건 | C0 No Skill / C1 Forced Skill |
 | §8 반복·통제 | 조건×반복 시드 기반 무작위 실행 순서, run마다 초기 상태 새로 복사 |
 | §9 자동 채점 | 결정적 검증기 (`verifier/score.py`, JSON `{"score": float}` 계약) |
-| §10 핵심 지표 | Skill Lift, Operational Lift, Time/Cost per Success |
+| §10 핵심 지표 | Skill Lift, Time/Cost per Success |
 | §11 커버리지 | `constraints.json` 정규식 규칙 → `NOT_APPLICABLE / COVERED_PASS / COVERED_FAIL / UNJUDGEABLE` |
-| §12 실패 분류 | 규칙 기반 6분류 (ROUTING / SKILL_DEFECT / NONCOMPLIANCE / TOOL / MODEL / VERIFIER) |
+| §12 실패 분류 | 규칙 기반 5분류 (SKILL_DEFECT / NONCOMPLIANCE / TOOL / MODEL / VERIFIER) |
 | §14 데이터 모델 | SQLite (계획서는 PostgreSQL 권장 — MVP는 단일 파일) |
 | §16 통계 | McNemar 정확검정, 태스크 단위 짝지은 부트스트랩 95% CI |
 
@@ -62,17 +56,16 @@ uv venv && uv pip install -e ".[dev]"   # 또는 pip install -e ".[dev]"
 # 레지스트리 확인
 skill-eval list
 
-# 데모 태스크 × 데모 스킬, C0/C1/C2 각 5회 (mock 어댑터 — LLM 비용 없음)
+# 데모 태스크 × 데모 스킬, C0(스킬 없음)/C1(스킬 적용) 각 5회 (mock 어댑터 — LLM 비용 없음)
 skill-eval run --task tasks/demo/hello-report-001 --skill skills/demo-report/1.0.0 \
-    --distractor skills/demo-distractor/1.0.0 \
-    --conditions C0,C1,C2 --repeats 5 --adapter mock --db results/results.db
+    --conditions C0,C1 --repeats 5 --adapter mock --db results/results.db
 
 # 리포트 (Skill Lift, CI, McNemar, 커버리지, 실패 유형)
 skill-eval report --db results/results.db --skill skills/demo-report/1.0.0 --out results/report.md
 
-# 복수 스킬 일괄 평가 (스킬별 리포트 + summary.md; 서로가 C2 distractor)
+# 복수 스킬 일괄 평가 (스킬별 리포트 + summary.md)
 skill-eval batch --skill skills/A/1.0.0 --skill skills/B/1.0.0 \
-    --conditions C0,C1,C2 --repeats 3 --adapter mock --out-dir results/batch
+    --conditions C0,C1 --repeats 3 --adapter mock --out-dir results/batch
 ```
 
 ## Claude 스킬로 사용 (스킬 이벨)

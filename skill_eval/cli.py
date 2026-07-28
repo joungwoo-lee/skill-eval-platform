@@ -3,7 +3,7 @@
 사용 예:
   skill-eval list --skills-dir skills --tasks-dir tasks
   skill-eval run --task tasks/demo/hello-report-001 --skill skills/demo-report/1.0.0 \\
-      --conditions C0,C1,C2 --repeats 5 --adapter mock --db results/results.db
+      --conditions C0,C1 --repeats 5 --adapter mock --db results/results.db
   skill-eval report --db results/results.db --out results/report.md
 """
 from __future__ import annotations
@@ -23,7 +23,6 @@ from .runners.runner import ExperimentRunner
 _COND_ALIAS = {
     "C0": "C0_NO_SKILL",
     "C1": "C1_FORCED_SKILL",
-    "C2": "C2_AUTO_DISCOVERY",
 }
 
 
@@ -47,13 +46,11 @@ def _cmd_run(args: argparse.Namespace) -> int:
     task = TaskPackage.load(args.task)
     skill = SkillPackage.load(args.skill) if args.skill else None
     conditions = [_COND_ALIAS.get(c.strip(), c.strip()) for c in args.conditions.split(",")]
-    distractors = [SkillPackage.load(p) for p in (args.distractor or [])]
 
     store = Store(args.db)
     runner = ExperimentRunner(store, _make_adapter(args))
     results = runner.run_conditions(
         task, skill, conditions, repeats=args.repeats, seed=args.seed,
-        distractor_skills=distractors,
     )
     ok = sum(r.success for r in results)
     print(f"{len(results)} runs finished, {ok} succeeded → {args.db}")
@@ -97,18 +94,16 @@ def _cmd_batch(args: argparse.Namespace) -> int:
         tasks = [t for t in all_tasks if t.required_skill == skill.skill_id]
         if not tasks:
             print(f"[skip] {skill.skill_id}: required_skill 매칭 태스크 없음 ({args.tasks_dir})")
-            summary.append((skill.skill_id, 0, None, None))
+            summary.append((skill.skill_id, 0, None))
             continue
         db = out_dir / f"{skill.skill_id}.db"
         if db.exists():
             db.unlink()
         store = Store(db)
         runner = ExperimentRunner(store, _make_adapter(args))
-        distractors = [s for s in skills if s.skill_id != skill.skill_id]
         for task in tasks:
             runner.run_conditions(
-                task, skill, conditions, repeats=args.repeats,
-                seed=args.seed, distractor_skills=distractors,
+                task, skill, conditions, repeats=args.repeats, seed=args.seed,
             )
         coverage = None
         if skill.constraints:
@@ -122,15 +117,15 @@ def _cmd_batch(args: argparse.Namespace) -> int:
             render_markdown(report, title=f"Skill Evaluation — {skill.skill_id}@{skill.version}"),
             encoding="utf-8",
         )
-        summary.append((skill.skill_id, len(tasks), report.skill_lift, report.operational_lift))
+        summary.append((skill.skill_id, len(tasks), report.skill_lift))
         print(f"[done] {skill.skill_id}: tasks={len(tasks)} → {md_path}")
         store.close()
 
     fmt = lambda v: f"{v:+.1%}" if v is not None else "-"
     lines = ["# Skill Eval Batch Summary", "",
-             "| 스킬 | 태스크 | Skill Lift | Operational Lift |", "|---|---|---|---|"]
-    for sid, ntasks, lift, oplift in summary:
-        lines.append(f"| {sid} | {ntasks} | {fmt(lift)} | {fmt(oplift)} |")
+             "| 스킬 | 태스크 | Skill Lift |", "|---|---|---|"]
+    for sid, ntasks, lift in summary:
+        lines.append(f"| {sid} | {ntasks} | {fmt(lift)} |")
     text = "\n".join(lines) + "\n"
     (out_dir / "summary.md").write_text(text, encoding="utf-8")
     print()
@@ -152,8 +147,7 @@ def main(argv: list[str] | None = None) -> int:
     p_run = sub.add_parser("run", help="실험 실행")
     p_run.add_argument("--task", required=True, help="태스크 패키지 디렉토리")
     p_run.add_argument("--skill", help="대상 스킬 디렉토리 (skills/<id>/<version>)")
-    p_run.add_argument("--distractor", action="append", help="C2용 무관 스킬 디렉토리 (반복 가능)")
-    p_run.add_argument("--conditions", default="C0,C1", help="쉼표구분: C0,C1,C2")
+    p_run.add_argument("--conditions", default="C0,C1", help="쉼표구분: C0,C1")
     p_run.add_argument("--repeats", type=int, default=3)
     p_run.add_argument("--seed", type=int, default=0)
     p_run.add_argument("--adapter", default="mock", choices=["mock", "claude-code"])

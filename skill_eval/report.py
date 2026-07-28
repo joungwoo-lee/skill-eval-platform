@@ -1,7 +1,6 @@
 """핵심 지표 계산과 마크다운 리포트 (PLAN.md §10, §16).
 
 - Skill Lift = P(success | C1) - P(success | C0)
-- Operational Lift = P(success | C2) - P(success | C0)
 - Time/Cost per Success, 커버리지, 실패 유형 분포, 신뢰구간(짝지은 부트스트랩), McNemar
 """
 from __future__ import annotations
@@ -41,8 +40,6 @@ class Report:
     skill_lift: float | None = None
     skill_lift_ci: tuple[float, float] | None = None
     skill_lift_pvalue: float | None = None
-    operational_lift: float | None = None
-    operational_lift_ci: tuple[float, float] | None = None
     failure_modes: dict[str, int] = field(default_factory=dict)
     coverage: dict | None = None
 
@@ -77,7 +74,6 @@ def build_report(store: Store, coverage: dict | None = None, seed: int = 42) -> 
 
     c0 = [r for r in all_runs if r["condition"] == "C0_NO_SKILL"]
     c1 = [r for r in all_runs if r["condition"] == "C1_FORCED_SKILL"]
-    c2 = [r for r in all_runs if r["condition"] == "C2_AUTO_DISCOVERY"]
 
     if c0 and c1:
         diffs = _per_task_diff(c0, c1)
@@ -89,11 +85,6 @@ def build_report(store: Store, coverage: dict | None = None, seed: int = 42) -> 
         if paired_a:
             _, a_only, b_only, _ = paired_success_table(paired_a, paired_b)
             report.skill_lift_pvalue = mcnemar_exact(a_only, b_only)
-    if c0 and c2:
-        diffs = _per_task_diff(c0, c2)
-        mean, lo, hi = paired_bootstrap_ci(diffs, seed=seed)
-        report.operational_lift = mean
-        report.operational_lift_ci = (lo, hi)
 
     for f in store.load_failures():
         report.failure_modes[f["failure_type"]] = report.failure_modes.get(f["failure_type"], 0) + 1
@@ -112,7 +103,6 @@ def _pair_by_repeat(runs_a: list[dict], runs_b: list[dict]) -> tuple[list[bool],
 _COND_LABEL = {
     "C0_NO_SKILL": "C0 No Skill",
     "C1_FORCED_SKILL": "C1 Forced Skill",
-    "C2_AUTO_DISCOVERY": "C2 Auto Discovery",
 }
 
 
@@ -137,10 +127,7 @@ def render_markdown(report: Report, title: str = "Skill Evaluation Report") -> s
         lo, hi = report.skill_lift_ci
         p = f", McNemar p={report.skill_lift_pvalue:.4f}" if report.skill_lift_pvalue is not None else ""
         lines.append(f"- **Skill Lift**: {report.skill_lift:+.1%} (95% CI {lo:+.1%} ~ {hi:+.1%}{p})")
-    if report.operational_lift is not None:
-        lo, hi = report.operational_lift_ci
-        lines.append(f"- **Operational Lift**: {report.operational_lift:+.1%} (95% CI {lo:+.1%} ~ {hi:+.1%})")
-    if report.skill_lift is None and report.operational_lift is None:
+    else:
         lines.append("- (비교 가능한 조건 쌍 없음)")
     lines.append("")
 

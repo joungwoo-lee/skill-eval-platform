@@ -19,7 +19,6 @@ class AdapterOutcome:
     tokens: int = 0
     cost: float = 0.0
     skill_was_loaded: bool = False
-    chosen_skill_id: str | None = None
     error: str = ""
 
 
@@ -35,13 +34,10 @@ class AgentAdapter(ABC):
         task: TaskPackage,
         workdir: Path,
         forced_skill: SkillPackage | None = None,
-        skill_pool: list[SkillPackage] | None = None,
         seed: int = 0,
     ) -> AdapterOutcome:
         """태스크 실행.
 
-        forced_skill: C1 조건 — 이 스킬을 강제 로드.
-        skill_pool: C2 조건 — 에이전트가 이 풀에서 스스로 선택.
-        둘 다 None이면 C0 (No Skill).
+        forced_skill: C1 조건 — 이 스킬을 강제 로드. None이면 C0 (No Skill).
         """
         raise NotImplementedError

@@ -5,9 +5,9 @@ description: 스킬 이벨 — SKILL.md 기반 스킬(단수/복수)의 실측 �
 
 # skill-eval (스킬 이벨)
 
-스킬 생산성 자동평가 플랫폼 구동 스킬. 같은 태스크를 스킬 없이(C0) / 스킬 강제(C1) /
-스킬 풀 자동선택(C2)으로 반복 실행해 **Skill Lift**(성공률 상승), 성공당 시간·비용,
-지침 커버리지, 실패 원인을 수치화한다.
+스킬 생산성 자동평가 플랫폼 구동 스킬. 같은 태스크를 스킬 없이(C0) / 스킬 적용(C1)으로
+반복 실행해 **Skill Lift**(성공률 상승), 성공당 시간·비용, 지침 커버리지, 실패 원인을
+수치화한다. 측정 전용 — 평가 대상 스킬은 절대 수정하지 않는다.
 
 ## 플랫폼 위치·의존성 자가점검 (스킬 발동 시 항상 먼저)
 
@@ -79,7 +79,7 @@ SKILL.md 지침 중 **실행 궤적에서 관측 가능한 것만** 행동 제�
 ```bash
 python -m skill_eval.cli batch \
     --skill skills/<idA>/1.0.0 --skill skills/<idB>/1.0.0 \
-    --conditions C0,C1,C2 --repeats 3 \
+    --conditions C0,C1 --repeats 3 \
     --adapter claude-code --model claude-haiku-4-5-20251001 \
     --out-dir results/batch
 ```
@@ -87,15 +87,13 @@ python -m skill_eval.cli batch \
 - 실측 평가는 `--adapter claude-code` (실 LLM 실행 = 비용 발생).
   **실행 전 규모를 사용자에게 알린다**: 총 run 수 = 스킬 × 태스크 × 조건 × repeats.
   파이프라인 점검만 할 때는 `--adapter mock`(비용 0).
-- 스킬이 복수면 서로가 C2 조건의 distractor(미끼 스킬)가 된다.
-- 스킬이 1개뿐이면 C2는 의미가 약하므로 `--conditions C0,C1`을 기본으로.
 
 ### 6. 보고
 
 `results/batch/summary.md`(스킬별 Lift 총괄)와 스킬별 `<id>.md`를 읽고 요약 보고:
 
-- 스킬별 Skill Lift(95% CI, McNemar p), Operational Lift(C2 실행 시)
+- 스킬별 Skill Lift(95% CI, McNemar p)
 - 성공당 시간·비용 변화, Skill Coverage와 미검증 지침 목록
-- 실패 유형 분포 (ROUTING / SKILL_DEFECT / NONCOMPLIANCE / TOOL / MODEL / VERIFIER)
+- 실패 유형 분포 (SKILL_DEFECT / NONCOMPLIANCE / TOOL / MODEL / VERIFIER)
 - 태스크를 자동 생성했다면 편향 한계 명시
 - 반복 수가 적으면(repeats ≤ 3) 통계적 확정이 아님을 명시

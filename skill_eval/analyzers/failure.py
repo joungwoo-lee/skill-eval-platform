@@ -8,20 +8,14 @@ from __future__ import annotations
 from ..models import RunResult
 
 
-def attribute_failure(run: RunResult, skill_expected: bool) -> tuple[str, str]:
-    """(failure_type, rationale) 반환. 성공 런에는 호출하지 않는다.
-
-    skill_expected: 이 조건에서 스킬 사용이 기대되는가 (C1/C2).
-    """
+def attribute_failure(run: RunResult) -> tuple[str, str]:
+    """(failure_type, rationale) 반환. 성공 런에는 호출하지 않는다."""
     if run.verifier_error:
         return "VERIFIER_OR_TASK_DEFECT", f"verifier error: {run.verifier_error}"
 
     tool_errors = [ev for ev in run.trajectory if ev.event_type == "error"]
     if tool_errors:
         return "TOOL_FAILURE", f"trajectory errors: {tool_errors[0].detail[:200]}"
-
-    if skill_expected and not run.skill_was_loaded:
-        return "ROUTING_FAILURE", "skill expected but never loaded/selected"
 
     violated = [cid for cid, v in run.constraint_verdicts.items() if v == "COVERED_FAIL"]
     if run.skill_was_loaded and violated:

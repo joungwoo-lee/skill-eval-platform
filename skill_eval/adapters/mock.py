@@ -7,7 +7,6 @@
 - 스킬 없음: base_success_rate 확률로 태스크 oracle을 실행(성공 경로).
 - 올바른 스킬 로드: skilled_success_rate 확률로 성공. 성공 시 스킬 지침
   이벤트(verify 등)를 궤적에 남긴다. compliance_rate 확률로 지침을 준수.
-- Auto Discovery: discovery_accuracy 확률로 올바른 스킬을 선택.
 """
 from __future__ import annotations
 
@@ -30,7 +29,6 @@ class MockAdapter(AgentAdapter):
         self,
         base_success_rate: float = 0.3,
         skilled_success_rate: float = 0.8,
-        discovery_accuracy: float = 0.7,
         compliance_rate: float = 0.9,
         tokens_base: int = 4000,
         tokens_skill_overhead: int = 1200,
@@ -38,7 +36,6 @@ class MockAdapter(AgentAdapter):
     ):
         self.base_success_rate = base_success_rate
         self.skilled_success_rate = skilled_success_rate
-        self.discovery_accuracy = discovery_accuracy
         self.compliance_rate = compliance_rate
         self.tokens_base = tokens_base
         self.tokens_skill_overhead = tokens_skill_overhead
@@ -49,7 +46,6 @@ class MockAdapter(AgentAdapter):
         task: TaskPackage,
         workdir: Path,
         forced_skill: SkillPackage | None = None,
-        skill_pool: list[SkillPackage] | None = None,
         seed: int = 0,
     ) -> AdapterOutcome:
         rng = random.Random((hash(task.task_id) & 0xFFFF) ^ seed)
@@ -57,24 +53,11 @@ class MockAdapter(AgentAdapter):
         t0 = time.time()
         ev = out.trajectory.append
 
-        active_skill: SkillPackage | None = None
-        if forced_skill is not None:
-            active_skill = forced_skill
-        elif skill_pool:
-            # C2: required_skill을 discovery_accuracy 확률로 올바르게 선택
-            required = task.required_skill
-            correct = next((s for s in skill_pool if s.skill_id == required), None)
-            if correct is not None and rng.random() < self.discovery_accuracy:
-                active_skill = correct
-            elif skill_pool:
-                wrong = [s for s in skill_pool if s.skill_id != required]
-                if wrong and rng.random() < 0.5:
-                    active_skill = rng.choice(wrong)
+        active_skill: SkillPackage | None = forced_skill
 
         tokens = self.tokens_base + rng.randint(-500, 500)
         if active_skill is not None:
             out.skill_was_loaded = True
-            out.chosen_skill_id = active_skill.skill_id
             tokens += self.tokens_skill_overhead
             ev(TrajectoryEvent(time.time(), "skill_loaded", "", active_skill.skill_id))
 

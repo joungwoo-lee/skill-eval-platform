@@ -14,14 +14,13 @@ from pathlib import Path
 from typing import Any
 
 # 평가 조건 (PLAN.md §7)
-CONDITIONS = ("C0_NO_SKILL", "C1_FORCED_SKILL", "C2_AUTO_DISCOVERY")
+CONDITIONS = ("C0_NO_SKILL", "C1_FORCED_SKILL")
 
 # 커버리지 판정 (PLAN.md §11.2)
 VERDICTS = ("NOT_APPLICABLE", "COVERED_PASS", "COVERED_FAIL", "UNJUDGEABLE")
 
 # 실패 원인 분류 (PLAN.md §12)
 FAILURE_TYPES = (
-    "ROUTING_FAILURE",
     "SKILL_DEFECT",
     "INSTRUCTION_NONCOMPLIANCE",
     "TOOL_FAILURE",

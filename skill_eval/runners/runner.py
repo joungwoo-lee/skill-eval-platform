@@ -37,7 +37,6 @@ class ExperimentRunner:
         task: TaskPackage,
         repeat_index: int,
         forced_skill: SkillPackage | None = None,
-        skill_pool: list[SkillPackage] | None = None,
     ) -> RunResult:
         run = RunResult(
             run_id=new_id("run"),
@@ -55,7 +54,6 @@ class ExperimentRunner:
             outcome = self.adapter.run(
                 task, workdir,
                 forced_skill=forced_skill,
-                skill_pool=skill_pool,
                 seed=spec.seed + repeat_index,
             )
             run.finished_at = time.time()
@@ -70,16 +68,11 @@ class ExperimentRunner:
             run.success = vr.success
             run.verifier_error = vr.error
 
-            constraints = (forced_skill.constraints if forced_skill else None) or (
-                next((s.constraints for s in (skill_pool or [])
-                      if s.skill_id == outcome.chosen_skill_id), [])
-            )
-            if constraints:
-                run.constraint_verdicts = judge_constraints(constraints, run.trajectory)
+            if forced_skill and forced_skill.constraints:
+                run.constraint_verdicts = judge_constraints(forced_skill.constraints, run.trajectory)
 
             if not run.success:
-                skill_expected = spec.condition in ("C1_FORCED_SKILL", "C2_AUTO_DISCOVERY")
-                run.failure_type, run.failure_rationale = attribute_failure(run, skill_expected)
+                run.failure_type, run.failure_rationale = attribute_failure(run)
 
             self.store.save_run(run)
             return run
@@ -93,7 +86,6 @@ class ExperimentRunner:
         conditions: list[str],
         repeats: int,
         seed: int = 0,
-        distractor_skills: list[SkillPackage] | None = None,
     ) -> list[RunResult]:
         """조건 목록 × 반복을 무작위 순서로 실행 (§8)."""
         specs: dict[str, ExperimentSpec] = {}
@@ -116,10 +108,8 @@ class ExperimentRunner:
         schedule = [(cond, i) for cond in conditions for i in range(repeats)]
         random.Random(seed).shuffle(schedule)
 
-        pool = ([skill] if skill else []) + (distractor_skills or [])
         results: list[RunResult] = []
         for cond, i in schedule:
             forced = skill if cond == "C1_FORCED_SKILL" else None
-            skill_pool = pool if cond == "C2_AUTO_DISCOVERY" else None
-            results.append(self.run_once(specs[cond], task, i, forced, skill_pool))
+            results.append(self.run_once(specs[cond], task, i, forced))
         return results
