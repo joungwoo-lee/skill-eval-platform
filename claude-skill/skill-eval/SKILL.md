@@ -102,7 +102,9 @@ python -m skill_eval.cli batch \
 
 ### 6. 보고
 
-`results/batch/summary.md`(스킬별 Lift 총괄)와 스킬별 `<id>.md`를 읽고 요약 보고:
+`results/batch/summary.md`와 스킬별 `<id>.md`를 읽고 요약 보고.
+**보고의 결론 첫 줄은 반드시 효율 상승 %** (실측 = 리포트의 "결론" 값,
+정적 진단 = "추정 효율 상승 ≈ %"에 추정임을 병기). 이어서:
 
 - 스킬별 Skill Lift(95% CI, McNemar p)
 - 성공당 시간·비용 변화, Skill Coverage와 미검증 지침 목록

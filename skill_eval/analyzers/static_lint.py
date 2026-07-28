@@ -67,6 +67,14 @@ class LintReport:
     def findings(self) -> list[CheckResult]:
         return [c for c in self.checks if c.score < 0.7 and c.advice]
 
+    # SkillsBench 공개 집계(선별 스킬 평균 해결률 33.9%→50.5% ≈ 상대 +49%)를 상한 앵커로,
+    # 구조 점수를 선형 스케일한 휴리스틱 추정. 검증된 예측 모델이 아니다.
+    ANCHOR_UPLIFT = 0.49
+
+    @property
+    def est_efficiency_uplift(self) -> float:
+        return round(self.total_score / 100 * self.ANCHOR_UPLIFT, 3)
+
 
 def lint_skill(skill: SkillPackage) -> LintReport:
     md = skill.skill_md
@@ -182,7 +190,13 @@ def render_lint_markdown(report: LintReport) -> str:
     lines = [
         f"# Static Lint — {label}",
         "",
-        f"**구조 품질 점수: {report.total_score}/100** (추정 {report.est_tokens:,} 토큰)",
+        f"## 결론",
+        "",
+        f"**추정 효율 상승: ≈ {report.est_efficiency_uplift:+.0%}** (휴리스틱 — 실측 아님)",
+        f"(구조 점수 {report.total_score}/100 × 앵커 +{report.ANCHOR_UPLIFT:.0%}; "
+        f"앵커 = SkillsBench 선별 스킬 평균 효과)",
+        "",
+        f"구조 품질 점수: {report.total_score}/100, 추정 {report.est_tokens:,} 토큰",
         "",
         "| 항목 | 가중치 | 점수 | 근거 |",
         "|---|---|---|---|",

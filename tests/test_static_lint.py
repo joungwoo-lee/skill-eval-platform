@@ -47,9 +47,12 @@ def test_lint_detects_broken_resource_reference(tmp_path):
 
 def test_lint_markdown_render(tmp_path):
     skill = SkillPackage.load(ROOT / "skills" / "demo-report" / "1.0.0")
-    md = render_lint_markdown(lint_skill(skill))
+    report = lint_skill(skill)
+    md = render_lint_markdown(report)
+    assert "추정 효율 상승" in md  # 결론 지표: 효율 상승 %
+    assert "실측 아님" in md
     assert "구조 품질 점수" in md
-    assert "추정" in md  # 예측임을 명시
+    assert 0 <= report.est_efficiency_uplift <= report.ANCHOR_UPLIFT
 
 
 def test_cli_lint(tmp_path):

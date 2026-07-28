@@ -83,8 +83,11 @@ def test_end_to_end_lift_and_report(task, skill, tmp_path):
     assert report.conditions["C1_FORCED_SKILL"].success_rate > report.conditions["C0_NO_SKILL"].success_rate
     assert coverage["coverage"] > 0
 
+    # 결론 지표: 효율 상승 %
+    assert report.efficiency_uplift is not None and report.efficiency_uplift > 0
     md = render_markdown(report)
-    assert "Skill Lift" in md and "조건별 결과" in md
+    assert "효율 상승" in md and md.index("결론") < md.index("조건별 결과")
+    assert "Skill Lift" in md
 
     # 실패 유형이 하나 이상 분류되어야 한다 (C0 실패 다수)
     assert report.failure_modes
@@ -130,5 +133,5 @@ def test_cli_batch(tmp_path):
     ])
     assert rc == 0
     summary = (out_dir / "summary.md").read_text(encoding="utf-8")
-    assert "demo-report" in summary
-    assert "Skill Lift" in (out_dir / "demo-report.md").read_text(encoding="utf-8")
+    assert "demo-report" in summary and "효율 상승" in summary
+    assert "효율 상승" in (out_dir / "demo-report.md").read_text(encoding="utf-8")

@@ -40,6 +40,8 @@ class Report:
     skill_lift: float | None = None
     skill_lift_ci: tuple[float, float] | None = None
     skill_lift_pvalue: float | None = None
+    efficiency_uplift: float | None = None  # (C1 효율 / C0 효율) - 1; inf 가능
+    efficiency_basis: str = ""              # "성공 횟수 / 총 비용" 또는 "성공 횟수 / 총 시간"
     failure_modes: dict[str, int] = field(default_factory=dict)
     coverage: dict | None = None
 
@@ -76,6 +78,10 @@ def build_report(store: Store, coverage: dict | None = None, seed: int = 42) -> 
     c1 = [r for r in all_runs if r["condition"] == "C1_FORCED_SKILL"]
 
     if c0 and c1:
+        s0 = report.conditions.get("C0_NO_SKILL")
+        s1 = report.conditions.get("C1_FORCED_SKILL")
+        if s0 and s1:
+            report.efficiency_uplift, report.efficiency_basis = _efficiency_uplift(s0, s1)
         diffs = _per_task_diff(c0, c1)
         mean, lo, hi = paired_bootstrap_ci(diffs, seed=seed)
         report.skill_lift = mean
@@ -90,6 +96,31 @@ def build_report(store: Store, coverage: dict | None = None, seed: int = 42) -> 
         report.failure_modes[f["failure_type"]] = report.failure_modes.get(f["failure_type"], 0) + 1
 
     return report
+
+
+def _efficiency_uplift(s0: ConditionStats, s1: ConditionStats) -> tuple[float | None, str]:
+    """최종 결론 지표: 효율 상승률.
+
+    효율 = 성공 횟수 / 총 비용 (비용 데이터 없으면 총 시간, 그것도 없으면 성공률).
+    상승률 = (C1 효율 / C0 효율) - 1. C0 효율이 0인데 C1이 성공하면 inf.
+    """
+    if s0.total_cost > 0 and s1.total_cost > 0:
+        e0, e1, basis = s0.successes / s0.total_cost, s1.successes / s1.total_cost, "성공 횟수 / 총 비용"
+    elif s0.total_time > 0 and s1.total_time > 0:
+        e0, e1, basis = s0.successes / s0.total_time, s1.successes / s1.total_time, "성공 횟수 / 총 시간"
+    else:
+        e0, e1, basis = s0.success_rate, s1.success_rate, "성공률"
+    if e0 == 0:
+        return (float("inf") if e1 > 0 else 0.0), basis
+    return (e1 / e0) - 1, basis
+
+
+def format_uplift(v: float | None) -> str:
+    if v is None:
+        return "-"
+    if v == float("inf"):
+        return "+∞%"
+    return f"{v:+.1%}"
 
 
 def _pair_by_repeat(runs_a: list[dict], runs_b: list[dict]) -> tuple[list[bool], list[bool]]:
@@ -109,6 +140,19 @@ _COND_LABEL = {
 def render_markdown(report: Report, title: str = "Skill Evaluation Report") -> str:
     lines = [f"# {title}", ""]
 
+    # 결론 — 모든 리포트의 최종 지표는 효율 상승 % (단일 값)
+    lines.append("## 결론")
+    lines.append("")
+    if report.efficiency_uplift is not None:
+        lines.append(f"**효율 상승: {format_uplift(report.efficiency_uplift)}**")
+        note = f"효율 = {report.efficiency_basis}, C0(스킬 없음) 대비 C1(스킬 적용)"
+        if report.efficiency_uplift == float("inf"):
+            note += " — 스킬 없이는 성공 0"
+        lines.append(f"({note})")
+    else:
+        lines.append("**효율 상승: 측정 불가** (C0/C1 비교 쌍 없음)")
+    lines.append("")
+
     lines += ["## 조건별 결과", "",
               "| 조건 | 실행 | 성공률 | 성공당 시간(s) | 성공당 비용($) | 총 토큰 |",
               "|---|---|---|---|---|---|"]
@@ -121,7 +165,7 @@ def render_markdown(report: Report, title: str = "Skill Evaluation Report") -> s
         )
     lines.append("")
 
-    lines.append("## 핵심 지표")
+    lines.append("## 구성 지표")
     lines.append("")
     if report.skill_lift is not None:
         lo, hi = report.skill_lift_ci

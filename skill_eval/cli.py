@@ -18,7 +18,7 @@ from .analyzers.coverage import compute_coverage
 from .analyzers.static_lint import lint_skill, render_lint_markdown
 from .models import Store
 from .registry import SkillPackage, TaskPackage, discover_skills, discover_tasks
-from .report import build_report, render_markdown
+from .report import build_report, format_uplift, render_markdown
 from .runners.runner import ExperimentRunner
 
 _COND_ALIAS = {
@@ -95,7 +95,7 @@ def _cmd_batch(args: argparse.Namespace) -> int:
         tasks = [t for t in all_tasks if t.required_skill == skill.skill_id]
         if not tasks:
             print(f"[skip] {skill.skill_id}: required_skill 매칭 태스크 없음 ({args.tasks_dir})")
-            summary.append((skill.skill_id, 0, None))
+            summary.append((skill.skill_id, 0, None, None))
             continue
         db = out_dir / f"{skill.skill_id}.db"
         if db.exists():
@@ -118,15 +118,16 @@ def _cmd_batch(args: argparse.Namespace) -> int:
             render_markdown(report, title=f"Skill Evaluation — {skill.skill_id}@{skill.version}"),
             encoding="utf-8",
         )
-        summary.append((skill.skill_id, len(tasks), report.skill_lift))
+        summary.append((skill.skill_id, len(tasks), report.efficiency_uplift, report.skill_lift))
         print(f"[done] {skill.skill_id}: tasks={len(tasks)} → {md_path}")
         store.close()
 
     fmt = lambda v: f"{v:+.1%}" if v is not None else "-"
     lines = ["# Skill Eval Batch Summary", "",
-             "| 스킬 | 태스크 | Skill Lift |", "|---|---|---|"]
-    for sid, ntasks, lift in summary:
-        lines.append(f"| {sid} | {ntasks} | {fmt(lift)} |")
+             "결론 지표 = **효율 상승 %** (효율 = 성공 횟수/총 비용, C0 대비 C1)", "",
+             "| 스킬 | 태스크 | 효율 상승 | Skill Lift(성공률 %p) |", "|---|---|---|---|"]
+    for sid, ntasks, eff, lift in summary:
+        lines.append(f"| {sid} | {ntasks} | {format_uplift(eff)} | {fmt(lift)} |")
     text = "\n".join(lines) + "\n"
     (out_dir / "summary.md").write_text(text, encoding="utf-8")
     print()
@@ -139,10 +140,12 @@ def _cmd_lint(args: argparse.Namespace) -> int:
     reports = [lint_skill(SkillPackage.load(p)) for p in args.skill]
     chunks = [render_lint_markdown(r) for r in reports]
     if len(reports) > 1:
-        head = ["# Static Lint Summary", "", "| 스킬 | 점수 | 추정 토큰 | 개선 포인트 수 |", "|---|---|---|---|"]
+        head = ["# Static Lint Summary", "",
+                "결론 지표 = **추정 효율 상승 %** (휴리스틱 — 실측 아님)", "",
+                "| 스킬 | 추정 효율 상승 | 구조 점수 | 추정 토큰 | 개선 포인트 수 |", "|---|---|---|---|---|"]
         for r in reports:
             label = f"{r.skill_id}@{r.version}" if r.version else r.skill_id
-            head.append(f"| {label} | {r.total_score} | {r.est_tokens:,} | {len(r.findings)} |")
+            head.append(f"| {label} | ≈ {r.est_efficiency_uplift:+.0%} | {r.total_score} | {r.est_tokens:,} | {len(r.findings)} |")
         chunks.insert(0, "\n".join(head))
     md = "\n\n---\n\n".join(chunks)
     if args.out:
