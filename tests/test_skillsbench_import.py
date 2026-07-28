@@ -41,6 +41,9 @@ def test_import_citation_check(tmp_path):
     assert task.metadata["requires"]["network"] == "public"
     assert (dest / "environment" / "initial_state" / "test.bib").exists()
     assert not (dest / "environment" / "initial_state" / "Dockerfile").exists()
+    # 동봉 스킬은 initial_state에서 제외 (C0 오염 방지), 메타데이터에만 기록
+    assert not (dest / "environment" / "initial_state" / "skills").exists()
+    assert task.metadata["skillsbench"]["bundled_skills"] == ["citation-management"]
     assert (dest / "verifier" / "sb" / "test_outputs.py").exists()
     assert task.verifier_script.exists()
     assert (dest / "oracle" / "solve.sh").exists()

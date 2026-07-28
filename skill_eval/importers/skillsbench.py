@@ -126,17 +126,28 @@ def import_sb_task(sb_task_dir: str | Path, dest_root: str | Path = "tasks/skill
         yaml.safe_dump(metadata, allow_unicode=True, sort_keys=False), encoding="utf-8"
     )
 
+    # environment/skills/ = 태스크에 동봉된 전용 스킬 — initial_state에 복사하면
+    # C0(스킬 없음) 조건에 스킬이 새어 들어가 비교가 오염되므로 반드시 제외.
     init_dir = dest / "environment" / "initial_state"
     init_dir.mkdir(parents=True)
     src_env = src / "environment"
+    bundled_skills: list[str] = []
     if src_env.exists():
         for f in src_env.iterdir():
             if f.name == "Dockerfile":
+                continue
+            if f.name == "skills" and f.is_dir():
+                bundled_skills = sorted(d.name for d in f.iterdir() if (d / "SKILL.md").exists())
                 continue
             if f.is_dir():
                 shutil.copytree(f, init_dir / f.name)
             else:
                 shutil.copy2(f, init_dir / f.name)
+    if bundled_skills:
+        metadata["skillsbench"]["bundled_skills"] = bundled_skills
+        (dest / "metadata.yaml").write_text(
+            yaml.safe_dump(metadata, allow_unicode=True, sort_keys=False), encoding="utf-8"
+        )
 
     verifier_dir = dest / "verifier"
     if (src / "verifier").exists():
