@@ -68,18 +68,21 @@ python -m skill_eval.cli lint --skill <스킬 경로> [--skill ...] --judge
 
 1. 사용자가 태스크(디렉토리)를 지정했으면 그것을 사용 (`tasks/` 밖이면 복사해 등록).
 2. 아니면 `tasks/`에서 `metadata.yaml`의 `required_skill == <skill-id>`인 기존 태스크 탐색.
-2.5 스킬 주제와 맞는 SkillsBench 공개 태스크(87개, `upstream/skillsbench/tasks/`)가
-   있으면 변환해 재사용 — 스킬 작성과 무관한 외부 출제라 자작 태스크보다 편향이 적다:
-   `python -m skill_eval.cli import-sb --task upstream/skillsbench/tasks/<id> --required-skill <skill-id>`
-   (변환된 metadata.yaml의 `requires.network`가 none이 아니면 로컬 실행 실패 가능 — 확인 후 사용)
-3. 태스크가 하나도 없는 스킬이 있으면 **생성 전 반드시 사용자에게 질문**한다.
+3. 태스크가 하나도 없는 스킬이 있으면 **임의로 진행하지 말고 반드시 사용자에게 질문**한다.
    텍스트로 질문하고(이 환경에선 AskUserQuestion 도구가 취소될 수 있음),
-   **복수 스킬이어도 질문은 한 번만 묶어서** 한다:
+   **복수 스킬이어도 질문은 한 번만 묶어서** 한다. 질문 전에
+   `upstream/skillsbench/tasks/`(87개)에서 각 스킬 주제와 맞는 후보를 미리 찾아
+   선택지에 포함한다:
 
-   > 평가용 태스크가 없는 스킬: `A`, `B`. 스킬별 3개씩(난이도 하/중/상) 태스크를
-   > 생성할까요? 개수·난이도 조정도 가능합니다.
+   > 평가용 태스크가 없는 스킬: `A`, `B`.
+   > (a) 스킬별 3개씩(난이도 하/중/상) 직접 생성
+   > (b) SkillsBench 공개 태스크 변환 재사용 — A: `<후보들>`, B: 후보 없음
+   >     (외부 출제라 자작보다 편향 적음, 단 network 요구 태스크는 로컬 실행 실패 가능)
+   > (c) 혼합. 개수·난이도 조정도 가능합니다.
 
-   승인 후 스킬 각각에 대해 태스크를 생성한다. 거부하면 태스크 있는 스킬만 평가.
+   사용자 선택대로 진행: 생성이면 스킬 각각에 대해 태스크 생성, 재사용이면
+   `python -m skill_eval.cli import-sb --task upstream/skillsbench/tasks/<id> --required-skill <skill-id>`
+   로 변환. 거부하면 태스크 있는 스킬만 평가.
 
 ### 4. 태스크 생성 (승인 시)
 
