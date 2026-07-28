@@ -67,6 +67,69 @@ if __name__ == "__main__":
 '''
 
 
+def _summarize_body(body: str, limit: int = 180) -> str:
+    """task.md 본문에서 한줄 요약 추출: 첫 실질 문단을 평문화해 자름."""
+    for para in body.split("\n\n"):
+        text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", para)   # 링크 → 라벨
+        text = re.sub(r"[#>*`_]", "", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        if len(text) >= 20:
+            if len(text) > limit:
+                return text[:limit].rsplit(" ", 1)[0] + "…"
+            return text
+    return ""
+
+
+def build_sb_index(upstream_dir: str | Path) -> list[dict]:
+    """동봉 태스크 전수 스캔 → 스킬 적합성 검토용 인덱스.
+
+    항목: task_id, 분류(category/subcategory), 난이도, 태그, 네트워크 요구,
+    동봉 스킬 목록, 한줄 요약. 스킬 평가 요청 시 이 인덱스를 훑어
+    재사용 가능한 태스크가 있는지 판단하는 근거로 쓴다.
+    """
+    index: list[dict] = []
+    for task_dir in list_sb_tasks(upstream_dir):
+        fm, body = parse_sb_task_md(task_dir / "task.md")
+        meta = fm.get("metadata") or {}
+        sandbox = fm.get("sandbox") or {}
+        skills_dir = task_dir / "environment" / "skills"
+        bundled = (
+            sorted(d.name for d in skills_dir.iterdir() if (d / "SKILL.md").exists())
+            if skills_dir.exists() else []
+        )
+        index.append({
+            "task_id": task_dir.name,
+            "category": meta.get("category"),
+            "subcategory": meta.get("subcategory"),
+            "difficulty": meta.get("difficulty"),
+            "tags": meta.get("tags") or [],
+            "network": sandbox.get("network_mode", "none"),
+            "bundled_skills": bundled,
+            "summary": _summarize_body(body),
+        })
+    return index
+
+
+def render_sb_index_markdown(index: list[dict]) -> str:
+    lines = [
+        "# SkillsBench 동봉 태스크 인덱스",
+        "",
+        f"총 {len(index)}개. 스킬 평가 시 재사용 후보 검토용 — 기계용 원본은 `sb-task-index.json`.",
+        "`network`가 none이 아닌 태스크는 풀이에 외부 접근이 필요해 채점 안정성 주의.",
+        "",
+        "| task_id | 분류 | 난이도 | network | 한줄 요약 |",
+        "|---|---|---|---|---|",
+    ]
+    for e in index:
+        cat = e["category"] or "-"
+        if e["subcategory"]:
+            cat += f" / {e['subcategory']}"
+        lines.append(
+            f"| {e['task_id']} | {cat} | {e['difficulty'] or '-'} | {e['network']} | {e['summary']} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def list_sb_tasks(upstream_dir: str | Path) -> list[Path]:
     tasks_dir = Path(upstream_dir) / "tasks"
     if not tasks_dir.exists():

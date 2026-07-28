@@ -19,7 +19,9 @@ from .analyzers.coverage import compute_coverage
 from .analyzers.llm_judge import judge_skill_llm, result_from_payload
 from .analyzers.static_final import combine_static, render_final_markdown
 from .analyzers.static_lint import lint_skill, render_lint_markdown
-from .importers.skillsbench import import_sb_task, list_sb_tasks
+from .importers.skillsbench import (
+    build_sb_index, import_sb_task, list_sb_tasks, render_sb_index_markdown,
+)
 from .models import Store
 from .registry import SkillPackage, TaskPackage, discover_skills, discover_tasks
 from .report import build_report, format_uplift, render_markdown
@@ -216,6 +218,21 @@ def _cmd_import_sb(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_index_sb(args: argparse.Namespace) -> int:
+    """SkillsBench 동봉 태스크 인덱스 생성 (재사용 적합성 검토용)."""
+    index = build_sb_index(args.upstream)
+    if not index:
+        print(f"upstream 태스크 없음: {args.upstream}/tasks — git submodule update --init")
+        return 1
+    out_json = Path(args.out_json)
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
+    out_md = Path(args.out_md)
+    out_md.write_text(render_sb_index_markdown(index), encoding="utf-8")
+    print(f"{len(index)}개 태스크 인덱싱 → {out_json}, {out_md}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")  # Windows cp949 콘솔에서 한글 리포트 깨짐 방지
@@ -270,6 +287,12 @@ def main(argv: list[str] | None = None) -> int:
     p_sb.add_argument("--dest", default="tasks/skillsbench")
     p_sb.add_argument("--required-skill", help="변환 태스크에 매핑할 스킬 id (batch 매칭용)")
     p_sb.set_defaults(func=_cmd_import_sb)
+
+    p_idx = sub.add_parser("index-sb", help="SkillsBench 동봉 태스크 인덱스 생성 (라벨·한줄요약)")
+    p_idx.add_argument("--upstream", default="upstream/skillsbench")
+    p_idx.add_argument("--out-json", default="docs/sb-task-index.json")
+    p_idx.add_argument("--out-md", default="docs/sb-task-index.md")
+    p_idx.set_defaults(func=_cmd_index_sb)
 
     p_rep = sub.add_parser("report", help="지표 계산·리포트 생성")
     p_rep.add_argument("--db", default="results/results.db")

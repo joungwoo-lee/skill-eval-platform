@@ -102,9 +102,24 @@ skill-eval report --db results/results.db --skill skills/demo-report/1.0.0 --out
 skill-eval batch --skill skills/A/1.0.0 --skill skills/B/1.0.0 \
     --conditions C0,C1 --repeats 3 --adapter mock --out-dir results/batch
 
+# SkillsBench 동봉 태스크 인덱스 재생성 (docs/sb-task-index.{json,md} — 레포에 커밋됨)
+skill-eval index-sb
+
 # SkillsBench 공개 태스크 변환 (개별 또는 --all 87개)
 skill-eval import-sb --task upstream/skillsbench/tasks/citation-check --required-skill my-skill
 ```
+
+### 평가 태스크 확보 흐름
+
+우선순위: **사용자 지정/제공 > 기존 등록 > SkillsBench 적합 > 질문 후 확보**.
+
+1. 사용자가 태스크(또는 실제 업무 예시)를 제공하면 그것을 사용.
+2. 레지스트리에 `required_skill` 매칭 태스크가 있으면 사용.
+3. 없으면 **서브에이전트가 [docs/sb-task-index.md](docs/sb-task-index.md)** (87개 동봉
+   태스크의 분류·난이도·네트워크 요구·한줄 요약)를 읽고 스킬과의 적합성을 검토 —
+   적합 태스크가 있으면 `import-sb`로 변환해 사용 (외부 출제라 자작보다 편향 없음).
+4. 그래도 없으면 사용자에게 선택 질문: (a) 실제 업무 예시 제공받아 태스크로 포장(권장)
+   (b) 에이전트가 임의 생성(스킬당 3개, 편향 관리 장치 적용).
 
 ## Claude 스킬로 사용 (스킬 이벨)
 

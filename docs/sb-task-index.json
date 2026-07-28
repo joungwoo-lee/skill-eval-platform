@@ -1,0 +1,1651 @@
+[
+ {
+  "task_id": "3d-scan-calc",
+  "category": "industrial-physical-systems",
+  "subcategory": "3d-printing-mass-calculation",
+  "difficulty": "hard",
+  "tags": [
+   "binary-parsing",
+   "algorithm",
+   "3d-geometry",
+   "stl"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "mesh-analysis"
+  ],
+  "summary": "You need to calculate the mass of a 3D printed part. The input (/root/scandata.stl) is a binary STL, but the 2-byte \"Attribute Byte Count\" at the end of each triangle record is…"
+ },
+ {
+  "task_id": "ada-bathroom-plan-repair",
+  "category": "industrial-physical-systems",
+  "subcategory": "architectural-design",
+  "difficulty": "hard",
+  "tags": [
+   "cad",
+   "dxf",
+   "accessibility",
+   "geometry",
+   "ada",
+   "spatial-reasoning"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "ada-plan-view-accessibility",
+   "architectural-dxf-extraction",
+   "geometric-layout-repair"
+  ],
+  "summary": "You are given a standardized 2D toilet-room CAD plan. Extract the original room layout, identify the plan-view ADA (Americans with Disabilities Act)-derived accessibility…"
+ },
+ {
+  "task_id": "adaptive-cruise-control",
+  "category": "industrial-physical-systems",
+  "subcategory": "vehicle-control",
+  "difficulty": "medium",
+  "tags": [
+   "python",
+   "pid-control",
+   "simulation",
+   "vehicle-dynamics",
+   "automotive",
+   "control-theory"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "csv-processing",
+   "pid-controller",
+   "simulation-metrics",
+   "vehicle-dynamics",
+   "yaml-config"
+  ],
+  "summary": "You need to implement an Adaptive Cruise Control (ACC) simulation that maintains the set speed (30m/s) when no vehicles are detected ahead, and automatically adjusts speed to…"
+ },
+ {
+  "task_id": "azure-bgp-oscillation-route-leak",
+  "category": "software-engineering",
+  "subcategory": "network-engineering",
+  "difficulty": "medium",
+  "tags": [
+   "bgp",
+   "oscillation",
+   "azure",
+   "network"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "azure-bgp"
+  ],
+  "summary": "Detect BGP route oscillation and leaks in an Azure Virtual WAN network topology and evaluate which solutions can fix them."
+ },
+ {
+  "task_id": "bike-rebalance",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "operations-research-vehicle-routing",
+  "difficulty": "medium",
+  "tags": [
+   "bike-sharing",
+   "vehicle-routing",
+   "inventory-rebalancing",
+   "mixed-integer-program"
+  ],
+  "network": "no-network",
+  "bundled_skills": [
+   "geospatial-routing-data",
+   "logistics-rules-to-optimization",
+   "routing-subtour-elimination",
+   "scip-opt"
+  ],
+  "summary": "As an optimization and mathematical modeling expert in a shared bike service company, every night, you need to rebalance the bikes among the stations in your responsible region.…"
+ },
+ {
+  "task_id": "citation-check",
+  "category": "office-white-collar",
+  "subcategory": "academic-bibliography-verification",
+  "difficulty": "medium",
+  "tags": [
+   "citation",
+   "bibtex",
+   "academic",
+   "verification",
+   "api",
+   "crossref",
+   "semantic-scholar"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "citation-management"
+  ],
+  "summary": "You are helping a research team verify the integrity of their bibliography before submitting a paper. The team suspects that some citations in their BibTeX file may be fake or…"
+ },
+ {
+  "task_id": "civ6-adjacency-optimizer",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "combinatorial-optimization",
+  "difficulty": "hard",
+  "tags": [
+   "optimization",
+   "constraint-satisfaction",
+   "game-mechanics",
+   "spatial understanding",
+   "civ6"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "civ6lib",
+   "hex-grid-spatial",
+   "map-optimization-strategy",
+   "sqlite-map-parser"
+  ],
+  "summary": "Sid Meier's Civilization 6 District Adjacency Bonus Optimizer"
+ },
+ {
+  "task_id": "court-form-filling",
+  "category": "office-white-collar",
+  "subcategory": "legal-form-filling",
+  "difficulty": "easy",
+  "tags": [
+   "pdf",
+   "form-filling",
+   "legal",
+   "document-automation"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pdf"
+  ],
+  "summary": "Fill the California Small Claims Court form at /root/sc100-blank.pdf based on the case description below, and save the filled one to /root/sc100-filled.pdf. Only fill in the…"
+ },
+ {
+  "task_id": "crystallographic-wyckoff-position-analysis",
+  "category": "natural-science",
+  "subcategory": "crystallography",
+  "difficulty": "medium",
+  "tags": [
+   "crystallography",
+   "pymatgen",
+   "sympy",
+   "wyckoff_positions",
+   "symmetry_analysis"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pymatgen",
+   "sympy"
+  ],
+  "summary": "You are a materials science researcher. You want to analyze the crystal structure of a few samples. You are given a few CIF files generated by SHELX through X-ray Diffraction."
+ },
+ {
+  "task_id": "dapt-intrusion-detection",
+  "category": "cybersecurity",
+  "subcategory": "network-intrusion-detection",
+  "difficulty": "hard",
+  "tags": [
+   "security",
+   "network",
+   "pcap",
+   "intrusion-detection"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pcap-analysis",
+   "threat-detection"
+  ],
+  "summary": "You’re given packets.pcap (subset of DAPT2020 traffic). Compute the stats and fill in only the value column in /root/networkstats.csv. Lines starting with are comments—leave them."
+ },
+ {
+  "task_id": "data-to-d3",
+  "category": "software-engineering",
+  "subcategory": "data-visualization-frontend",
+  "difficulty": "medium",
+  "tags": [
+   "d3.js",
+   "data-visualization",
+   "interactive-charts"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "d3-visualization"
+  ],
+  "summary": "Please use D3.js (v6) to visualize input data stored at /root/data/stock-descriptions.csv and /root/data/indiv-stock/ for company stock details and individual stock price…"
+ },
+ {
+  "task_id": "debug-trl-grpo",
+  "category": "software-engineering",
+  "subcategory": "debugging",
+  "difficulty": "hard",
+  "tags": [
+   "post-training",
+   "trl",
+   "debugging",
+   "reasoning-model",
+   "grpo"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "grpo",
+   "rl-post-training",
+   "trl"
+  ],
+  "summary": "I am training a countdown math task using TRL for my model with GRPO, but the new model shows no improvement. The source code is at /app/trl. Check if there is any bug and fix…"
+ },
+ {
+  "task_id": "dialogue-parser",
+  "category": "software-engineering",
+  "subcategory": "parser-implementation",
+  "difficulty": "easy",
+  "tags": [
+   "game development",
+   "parsing"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "dialogue-graph"
+  ],
+  "summary": "You will implement a dialogue parser that converts a given text file into a structured JSON graph. You will be given a text file /app/script.txt, and output a validated JSON graph…"
+ },
+ {
+  "task_id": "drone-planning-control",
+  "category": "industrial-physical-systems",
+  "subcategory": "robot-control",
+  "difficulty": "medium",
+  "tags": [
+   "planning",
+   "control",
+   "robotics",
+   "simulation",
+   "dynamics"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "attitude-controller-planner",
+   "flight-plan-parser",
+   "motor-model-dynamics",
+   "plot-quadrotor",
+   "position-controller-trajectory-planner",
+   "stepinfo-3d"
+  ],
+  "summary": "Given the system parameters of a drone, generate time-parameterized piecewise continuous trajectories and feedback control design to enable the drone to fly along a pre-defined…"
+ },
+ {
+  "task_id": "dynamic-object-aware-egomotion",
+  "category": "industrial-physical-systems",
+  "subcategory": "egomotion-and-dynamic-object-segmentation",
+  "difficulty": "medium",
+  "tags": [
+   "video",
+   "egomotion",
+   "spatial-reasoning"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "dyn-object-masks",
+   "egomotion-estimation",
+   "output-validation",
+   "sampling-and-indexing"
+  ],
+  "summary": "Given a video file /root/input.mp4, help me to analyze the camera motion (egomotion) and detect dynamic objects in this video. You need to give me 2 files: 1. A json file named…"
+ },
+ {
+  "task_id": "earthquake-phase-association",
+  "category": "natural-science",
+  "subcategory": "seismology",
+  "difficulty": "hard",
+  "tags": [
+   "science",
+   "earth-science",
+   "seismology",
+   "ai4science"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "gamma-phase-associator",
+   "obspy-data-api",
+   "seisbench-model-api",
+   "seismic-picker-selection"
+  ],
+  "summary": "You have some earthquake traces stored at /root/data/wave.mseed, and station information stored at /root/data/stations.csv."
+ },
+ {
+  "task_id": "earthquake-plate-calculation",
+  "category": "natural-science",
+  "subcategory": "geophysics-plate-tectonics",
+  "difficulty": "medium",
+  "tags": [
+   "geophysics",
+   "spatial-analysis",
+   "gis",
+   "plate-tectonics"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "geospatial-analysis"
+  ],
+  "summary": "You are a geospatial analyst with expertise in plate tectonics and earthquake analysis. I want to find the earthquake that occurred furthest from the Pacific plate boundary within…"
+ },
+ {
+  "task_id": "econ-detrending-correlation",
+  "category": "finance-economics",
+  "subcategory": "macroeconomic-time-series",
+  "difficulty": "medium",
+  "tags": [
+   "economics",
+   "statistics",
+   "data-analysis",
+   "python",
+   "pandas",
+   "hp-filter",
+   "timeseries"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "timeseries-detrending"
+  ],
+  "summary": "In macroeconomics, understanding business cycle dynamics requires separating the trend component (long-term growth) from the cyclical component (short-term fluctuations) of…"
+ },
+ {
+  "task_id": "edit-pdf",
+  "category": "office-white-collar",
+  "subcategory": "pdf-editing",
+  "difficulty": "medium",
+  "tags": [
+   "pdf",
+   "document-editing",
+   "form-filling",
+   "natural-language"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pdf-editing",
+   "text-parser"
+  ],
+  "summary": "You are given a PDF file at /root/input/input.pdf and a text file at /root/input/input.txt containing natural language instructions and updated information. Your task is to update…"
+ },
+ {
+  "task_id": "energy-ac-optimal-power-flow",
+  "category": "industrial-physical-systems",
+  "subcategory": "ac-optimal-power-flow",
+  "difficulty": "medium",
+  "tags": [
+   "energy",
+   "system-operation",
+   "ac-optimal-power-flow",
+   "non-convex-optimization"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "ac-branch-pi-model",
+   "casadi-ipopt-nlp",
+   "power-flow-data"
+  ],
+  "summary": "As an operator-planner in an Independent System Operator, you create a base case for tomorrow's peak hour each morning in order to establish the voltage profile and verify that…"
+ },
+ {
+  "task_id": "energy-market-pricing",
+  "category": "industrial-physical-systems",
+  "subcategory": "electricity-market-pricing",
+  "difficulty": "hard",
+  "tags": [
+   "energy",
+   "market-pricing",
+   "optimization",
+   "duality",
+   "counterfactual-analysis"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "dc-power-flow",
+   "economic-dispatch",
+   "locational-marginal-prices",
+   "power-flow-data"
+  ],
+  "summary": "You’re a market analyst at a regional transmission organization. The system managers have noticed that there was a peculiar price increase at multiple buses in yesterday’s…"
+ },
+ {
+  "task_id": "energy-unit-commitment",
+  "category": "industrial-physical-systems",
+  "subcategory": "unit-commitment",
+  "difficulty": "hard",
+  "tags": [
+   "energy",
+   "unit-commitment",
+   "mixed-integer-optimization",
+   "day-ahead-scheduling",
+   "power-system-operations"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "milp-solver-workflow",
+   "unit-commitment-data-modeling",
+   "unit-commitment-operating-rules"
+  ],
+  "summary": "Dvelop a unit commitment schedule for day ahead generation for the test case /root/network.json. Do not removal or rescale data. Each of the generators' available operating range…"
+ },
+ {
+  "task_id": "enterprise-information-search",
+  "category": "office-white-collar",
+  "subcategory": "business-reporting",
+  "difficulty": "hard",
+  "tags": [
+   "information-retrieval",
+   "question-answering",
+   "heterogeneous-data"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "enterprise-artifact-search"
+  ],
+  "summary": "I want you to help me retrieve information over enterprise data."
+ },
+ {
+  "task_id": "exam-block-sequencing",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "mathematical-optimization",
+  "difficulty": "hard",
+  "tags": [
+   "scheduling",
+   "optimization",
+   "integer-programming",
+   "timetabling",
+   "education"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "mip-solver-and-solution-audit",
+   "ordered-window-sequencing-mip"
+  ],
+  "summary": "You are helping a university registrar schedule final exams. The exams are already been grouped into blocks. Your job is to assign the blocks to available slots so that students…"
+ },
+ {
+  "task_id": "exceltable-in-ppt",
+  "category": "office-white-collar",
+  "subcategory": "presentation-editing",
+  "difficulty": "medium",
+  "tags": [
+   "excel",
+   "pptx",
+   "table-update"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pptx",
+   "xlsx"
+  ],
+  "summary": "You are working on a pptx file /root/input.pptx for financial reporting. The file contains an embedded Excel table of currency rates, where each value corresponds to the exchange…"
+ },
+ {
+  "task_id": "exoplanet-detection-period",
+  "category": "natural-science",
+  "subcategory": "astronomy",
+  "difficulty": "medium",
+  "tags": [
+   "science",
+   "astronomy",
+   "planetary-science",
+   "timeseries",
+   "data-analysis",
+   "python"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "box-least-squares",
+   "exoplanet-workflows",
+   "light-curve-preprocessing",
+   "lomb-scargle-periodogram",
+   "transit-least-squares"
+  ],
+  "summary": "You are provided with a lightcurve obtained with the TESS space telescope at /root/data/tesslc.txt, with the columns: Time (MJD), Normalized flux, Quality flag (0 means good…"
+ },
+ {
+  "task_id": "financial-modeling-qa",
+  "category": "finance-economics",
+  "subcategory": "financial-modeling",
+  "difficulty": "hard",
+  "tags": [
+   "data analysis",
+   "pdf parsing",
+   "financial knowledge"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pdf",
+   "xlsx"
+  ],
+  "summary": "Please analysis large-scale data file and give me answer for a financial data analysis question."
+ },
+ {
+  "task_id": "fix-build-agentops",
+  "category": "software-engineering",
+  "subcategory": "build-repair",
+  "difficulty": "easy",
+  "tags": [
+   "Python",
+   "agentops",
+   "AgentOps-AI/agentops",
+   "software",
+   "build",
+   "compilation",
+   "ci",
+   "github actions",
+   "debugging"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "analyze-ci",
+   "temporal-python-testing",
+   "testing-python",
+   "uv-package-manager"
+  ],
+  "summary": "You need to fix errors in a Python codebase. The repository is located in /home/github/build/failed/<repo/<id."
+ },
+ {
+  "task_id": "fix-build-google-auto",
+  "category": "software-engineering",
+  "subcategory": "build-repair",
+  "difficulty": "easy",
+  "tags": [
+   "Java",
+   "maven",
+   "google/auto",
+   "software",
+   "build",
+   "compilation",
+   "ci",
+   "travis",
+   "debugging"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "maven-build-lifecycle",
+   "maven-dependency-management",
+   "maven-plugin-configuration"
+  ],
+  "summary": "You need to fix build errors in a Java codebase. The repository is located in /home/travis/build/failed/<repo/<id."
+ },
+ {
+  "task_id": "fix-druid-loophole-cve",
+  "category": "cybersecurity",
+  "subcategory": "vulnerability-analysis",
+  "difficulty": "hard",
+  "tags": [
+   "Java",
+   "Security",
+   "Apache Druid",
+   "Vulnerability Fix"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "jackson-security",
+   "senior-java"
+  ],
+  "summary": "A vulnerability has been found in Apache Druid version 0.20.0: authenticated attackers can execute arbitrary code on the server through malicious JavaScript payloads, for example:"
+ },
+ {
+  "task_id": "fix-erlang-ssh-cve",
+  "category": "cybersecurity",
+  "subcategory": "vulnerability-analysis",
+  "difficulty": "hard",
+  "tags": [
+   "erlang",
+   "security"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "erlang-concurrency",
+   "erlang-distribution",
+   "erlang-otp-behaviors",
+   "find-bugs",
+   "senior-security",
+   "ssh-penetration-testing"
+  ],
+  "summary": "Erlang/OTP SSH is the built-in SSH server component of the Erlang/OTP platform."
+ },
+ {
+  "task_id": "fix-visual-stability",
+  "category": "software-engineering",
+  "subcategory": "performance-optimization",
+  "difficulty": "hard",
+  "tags": [
+   "react",
+   "nextjs",
+   "cls",
+   "flickering",
+   "visual-stability"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "browser-testing",
+   "react-best-practices",
+   "web-interface-guidelines"
+  ],
+  "summary": "There's a Next.js e-commerce app at /app. Users experience visual instability issues including layout shifts and generally a bad experience."
+ },
+ {
+  "task_id": "flink-query",
+  "category": "software-engineering",
+  "subcategory": "implementation",
+  "difficulty": "hard",
+  "tags": [
+   "flink",
+   "java",
+   "data engineer"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pdf",
+   "senior-data-engineer"
+  ],
+  "summary": "In /app/workspace/ I provided a skeleton code of a flink job and a dataset."
+ },
+ {
+  "task_id": "flood-risk-analysis",
+  "category": "natural-science",
+  "subcategory": "hydrology",
+  "difficulty": "medium",
+  "tags": [
+   "hydrology",
+   "geospatial",
+   "csv",
+   "json",
+   "flood-monitoring"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "flood-detection",
+   "nws-flood-thresholds",
+   "usgs-data-download"
+  ],
+  "summary": "Find stations experienced flooding during April 1-7, 2025. USGS stations data is in /root/data/michiganstations.txt which contains streamflow records. You should output a CSV file…"
+ },
+ {
+  "task_id": "glm-lake-mendota",
+  "category": "natural-science",
+  "subcategory": "hydrology",
+  "difficulty": "hard",
+  "tags": [
+   "hydrology",
+   "lake-modeling",
+   "parameter-calibration"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "glm-basics",
+   "glm-calibration",
+   "glm-output"
+  ],
+  "summary": "Please run the General Lake Model to simulate the vertical water temperature for Lake Mendota. The RMSE between the observation and the simulation should be smaller than 2 degrees…"
+ },
+ {
+  "task_id": "gravitational-wave-detection",
+  "category": "natural-science",
+  "subcategory": "astronomy",
+  "difficulty": "medium",
+  "tags": [
+   "science",
+   "astronomy",
+   "physics",
+   "gravitational-waves",
+   "signal-processing",
+   "python",
+   "pycbc"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "conditioning",
+   "matched-filtering"
+  ],
+  "summary": "You are asked to detect a potential gravitational wave signal from a binary black hole merger in noisy data from a gravitational wave detector with the help of the matched…"
+ },
+ {
+  "task_id": "grid-dispatch-operator",
+  "category": "industrial-physical-systems",
+  "subcategory": "grid-dispatch",
+  "difficulty": "medium",
+  "tags": [
+   "energy",
+   "large-scale-energy-market-clearing",
+   "optimization",
+   "power-flow",
+   "dc-opf"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "dc-power-flow",
+   "economic-dispatch",
+   "power-flow-data"
+  ],
+  "summary": "You are a Grid Dispatch Operator. Given a power network snapshot, you want to decide the generators' dispatches. The dispatches should be economically efficient while satisfying…"
+ },
+ {
+  "task_id": "hvac-control",
+  "category": "industrial-physical-systems",
+  "subcategory": "control-systems",
+  "difficulty": "medium",
+  "tags": [
+   "hvac",
+   "control-theory",
+   "system-identification",
+   "pid",
+   "python",
+   "thermal-modeling"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "excitation-signal-design",
+   "first-order-model-fitting",
+   "imc-tuning-rules",
+   "safety-interlocks",
+   "scipy-curve-fit"
+  ],
+  "summary": "You need to implement a temperature controller to maintain a temperature of 22.0C. And the targets are: steady-state error <0.5C, settling time <120s, overshoot <10% , control…"
+ },
+ {
+  "task_id": "invoice-fraud-detection",
+  "category": "finance-economics",
+  "subcategory": "fraud-detection",
+  "difficulty": "hard",
+  "tags": [
+   "pdf",
+   "excel",
+   "fraud-detection",
+   "fuzzy-matching",
+   "finance"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "fuzzy-match",
+   "pdf",
+   "xlsx"
+  ],
+  "summary": "You need to analyze the following files to find any potential invoice fraud: - /root/invoices.pdf: One invoice per page. - /root/vendors.xlsx: Approved vendors with corresponding…"
+ },
+ {
+  "task_id": "jax-computing-basics",
+  "category": "software-engineering",
+  "subcategory": "library-api-usage",
+  "difficulty": "medium",
+  "tags": [
+   "jax-language",
+   "numerical-computing"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "jax-skills"
+  ],
+  "summary": "Given a set of tasks in \"problem.json\", complete all programming using JAX language correctly. For each task, read the input data, write JAX code to do some computation, then…"
+ },
+ {
+  "task_id": "jpg-ocr-stat",
+  "category": "office-white-collar",
+  "subcategory": "ocr",
+  "difficulty": "hard",
+  "tags": [
+   "image ocr",
+   "data statistics"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "image-ocr",
+   "openai-vision",
+   "pdf",
+   "video-frame-extraction",
+   "xlsx"
+  ],
+  "summary": "In /app/workspace/dataset/img, I provide a set of scanned receipt images. Each receipt image contains text such as date, product name, unit price, total amount cost, etc. The text…"
+ },
+ {
+  "task_id": "lab-unit-harmonization",
+  "category": "natural-science",
+  "subcategory": "lab-unit-harmonization",
+  "difficulty": "medium",
+  "tags": [
+   "bioinformatics",
+   "clinical",
+   "unit-conversion",
+   "data-harmonization",
+   "chronic-kidney-disease"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "lab-unit-harmonization"
+  ],
+  "summary": "You are working on the clinical lab data. The data is actually consist of multiple source coming from different heathcare systems. That means they might using different units for…"
+ },
+ {
+  "task_id": "lake-warming-attribution",
+  "category": "natural-science",
+  "subcategory": "hydrology",
+  "difficulty": "medium",
+  "tags": [
+   "hydrology",
+   "trend-analysis",
+   "contribution-analysis"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "contribution-analysis",
+   "meteorology-driver-classification",
+   "pca-decomposition",
+   "trend-analysis"
+  ],
+  "summary": "My data is in /root/data/, which includes: 1. watertemperature.csv: Lake surface temperature (0-5m) 2. climate.csv: Climate variables 3. landcover.csv: Land cover data 4.…"
+ },
+ {
+  "task_id": "latex-formula-extraction",
+  "category": "office-white-collar",
+  "subcategory": "pdf-formula-extraction",
+  "difficulty": "medium",
+  "tags": [
+   "pdf",
+   "latex",
+   "latex-extraction"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "marker",
+   "pdf"
+  ],
+  "summary": "You are helping to extract all latex formulas in its own line from a research paper."
+ },
+ {
+  "task_id": "lean4-proof",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "formal-proof",
+  "difficulty": "medium",
+  "tags": [
+   "formal method",
+   "lean4"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "lean4-memories",
+   "lean4-theorem-proving"
+  ],
+  "summary": "In /app/workspace/solution.lean, I provide a template of lean4 proof for the following problem. Starting line 15, use lean4 to finalize the proof."
+ },
+ {
+  "task_id": "llm-prefix-cache-replay",
+  "category": "software-engineering",
+  "subcategory": "performance-optimization",
+  "difficulty": "medium",
+  "tags": [
+   "llm-serving",
+   "kv-cache",
+   "trace-replay",
+   "prefix-cache",
+   "s3fifo",
+   "performance"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "cache-policy-comparison",
+   "prefix-cache-replay"
+  ],
+  "summary": "Replay the LLM inference request trace at /root/trace.jsonl through a block-level KV prefix cache and report hit statistics. Each line of trace.jsonl is one request with fields…"
+ },
+ {
+  "task_id": "manufacturing-codebook-normalization",
+  "category": "industrial-physical-systems",
+  "subcategory": "defect-analysis",
+  "difficulty": "medium",
+  "tags": [
+   "test failure reason codebook",
+   "defect reason standardization",
+   "testing remarks analysis"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "manufacturing-failure-reason-codebook-normalization"
+  ],
+  "summary": "At manufacturing test centers, testing engineers often write recognized defect reasons quickly with typos, noise, abbreviations, Chinese-English characters mixtures, etc. These…"
+ },
+ {
+  "task_id": "manufacturing-equipment-maintenance",
+  "category": "industrial-physical-systems",
+  "subcategory": "maintenance",
+  "difficulty": "medium",
+  "tags": [
+   "question and answer",
+   "reflow machine maintenance",
+   "data analysis",
+   "reasoning"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "reflow-machine-maintenance-guidance",
+   "reflow-profile-compliance-toolkit"
+  ],
+  "summary": "Automation engineers in manufacturing rely on the instructions and guidance provided by the reflow machine handbook to maintain reflow machines and solve error issues. In order to…"
+ },
+ {
+  "task_id": "manufacturing-fjsp-optimization",
+  "category": "industrial-physical-systems",
+  "subcategory": "production-scheduling",
+  "difficulty": "medium",
+  "tags": [
+   "optimization",
+   "manufacturing",
+   "flexible job shop planning"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "fjsp-baseline-repair-with-downtime-and-policy"
+  ],
+  "summary": "In the manufacturing production planning phase, multiple production jobs should be arranged in a sequence of steps. Each step can be completed in different lines and machines with…"
+ },
+ {
+  "task_id": "mario-coin-counting",
+  "category": "media-content-production",
+  "subcategory": "video-processing",
+  "difficulty": "medium",
+  "tags": [
+   "video-processing",
+   "image-processing",
+   "computer-vision"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "ffmpeg-keyframe-extraction",
+   "image-editing",
+   "object-counter"
+  ],
+  "summary": "In this task, you are given a clip of screen recording of a player playing the game Super Mario. Your goal is to analyze the key frames in this video and count how many coins /…"
+ },
+ {
+  "task_id": "mars-clouds-clustering",
+  "category": "natural-science",
+  "subcategory": "astronomy",
+  "difficulty": "hard",
+  "tags": [
+   "science",
+   "astronomy",
+   "planetary-science",
+   "clustering",
+   "optimization",
+   "parallelization",
+   "python"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "custom-distance-metrics",
+   "parallel-processing",
+   "pareto-optimization"
+  ],
+  "summary": "Mars Cloud Clustering Optimization"
+ },
+ {
+  "task_id": "multilingual-video-dubbing",
+  "category": "media-content-production",
+  "subcategory": "video-processing",
+  "difficulty": "medium",
+  "tags": [
+   "video dubbing",
+   "speech",
+   "text-to-speech",
+   "alignment"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "ffmpeg-audio-processing",
+   "ffmpeg-format-conversion",
+   "ffmpeg-media-info",
+   "ffmpeg-video-editing",
+   "ffmpeg-video-filters",
+   "text-to-speech"
+  ],
+  "summary": "Give you a video with source audio /root/input.mp4, the precise time window where the speech must occur /root/segments.srt. The transcript for the original speaker…"
+ },
+ {
+  "task_id": "offer-letter-generator",
+  "category": "office-white-collar",
+  "subcategory": "document-editing",
+  "difficulty": "easy",
+  "tags": [
+   "docx",
+   "word",
+   "template",
+   "office",
+   "mail-merge"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "docx"
+  ],
+  "summary": "Write an offer letter for one of our new hires. Follow the Word template (offerlettertemplate.docx) with placeholders like {{CANDIDATEFULLNAME}}, {{POSITION}}, etc."
+ },
+ {
+  "task_id": "organize-messy-files",
+  "category": "office-white-collar",
+  "subcategory": "document-classification",
+  "difficulty": "medium",
+  "tags": [
+   "file-management",
+   "pdf"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "docx",
+   "file-organizer",
+   "pdf",
+   "planning-with-files",
+   "pptx"
+  ],
+  "summary": "You need to organize more than 100 pdf papers and other files including pptx and docx into 5 different folders according to the subjects they belong to. The files are belong to 5…"
+ },
+ {
+  "task_id": "paper-anonymizer",
+  "category": "office-white-collar",
+  "subcategory": "document-editing",
+  "difficulty": "medium",
+  "tags": [
+   "pdf",
+   "redaction",
+   "anonymization",
+   "blind-review"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "academic-pdf-redaction",
+   "pdf"
+  ],
+  "summary": "Please help me anonymize these papers /root/paper{1-3}.pdf."
+ },
+ {
+  "task_id": "parallel-tfidf-search",
+  "category": "software-engineering",
+  "subcategory": "performance-optimization",
+  "difficulty": "medium",
+  "tags": [
+   "parallel"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "memory-optimization",
+   "python-parallelization",
+   "workload-balancing"
+  ],
+  "summary": "Parallel TF-IDF Similarity Search"
+ },
+ {
+  "task_id": "paratransit-routing",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "mathematical-optimization",
+  "difficulty": "hard",
+  "tags": [
+   "paratransit",
+   "dial-a-ride",
+   "routing",
+   "operations-research",
+   "schedule-audit"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "ortools-pickup-delivery-routing",
+   "ortools-routing-modeling"
+  ],
+  "summary": "You are a paratransit planner preparing the operating plan for a full day of door-to-door ride requests. Produce vehicle routes and shift starts that serve as many trips as…"
+ },
+ {
+  "task_id": "pddl-airport-planning",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "formal-planning",
+  "difficulty": "medium",
+  "tags": [
+   "dsl",
+   "planning"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pddl-skills"
+  ],
+  "summary": "Solve tasks using PDDL (Planning Domain Definition Language). These planning tasks are taken from the problem suites of the International Planning Competitions (IPC). Planners…"
+ },
+ {
+  "task_id": "pddl-tpp-planning",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "formal-planning",
+  "difficulty": "medium",
+  "tags": [
+   "dsl",
+   "planning"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pddl-skills"
+  ],
+  "summary": "Solve travelling purchase problem (TPP) tasks using PDDL (Planning Domain Definition Language)."
+ },
+ {
+  "task_id": "pdf-excel-diff",
+  "category": "office-white-collar",
+  "subcategory": "spreadsheet-workflow",
+  "difficulty": "medium",
+  "tags": [
+   "pdf",
+   "excel",
+   "data-extraction",
+   "diff",
+   "table-parsing",
+   "office"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pdf",
+   "xlsx"
+  ],
+  "summary": "You are helping an HR department identify differences between its old employee records and the current database. The company previously saved employee data as a backup in a PDF…"
+ },
+ {
+  "task_id": "powerlifting-coef-calc",
+  "category": "office-white-collar",
+  "subcategory": "spreadsheet-workflow",
+  "difficulty": "easy",
+  "tags": [
+   "excel",
+   "sports",
+   "excel-index-match",
+   "statistics",
+   "excel-formula"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "powerlifting",
+   "senior-data-scientist",
+   "xlsx"
+  ],
+  "summary": "You need to calculate the lifting scores for International Powerlifting Federation competitions in the file /root/data/openipf.xlsx. The workbook contains two sheets: 1. \"Data\"…"
+ },
+ {
+  "task_id": "pptx-reference-formatting",
+  "category": "office-white-collar",
+  "subcategory": "presentation-editing",
+  "difficulty": "medium",
+  "tags": [
+   "pptx",
+   "ppt",
+   "slides",
+   "formatting"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pptx"
+  ],
+  "summary": "Help me detect all dangling paper titles in the slides /root/Awesome-Agent-Papers.pptx, and do the following - change the font type to Arial, font size to 16, font color to…"
+ },
+ {
+  "task_id": "protein-expression-analysis",
+  "category": "natural-science",
+  "subcategory": "protein-expression",
+  "difficulty": "medium",
+  "tags": [
+   "xlsx",
+   "proteomics",
+   "excel",
+   "data-analysis",
+   "statistics",
+   "bioinformatics"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "xlsx"
+  ],
+  "summary": "You'll be working with protein expression data from cancer cell line experiments. Open proteinexpression.xlsx - it has two sheets: \"Task\" is where you'll do your work, and \"Data\"…"
+ },
+ {
+  "task_id": "python-scala-translation",
+  "category": "software-engineering",
+  "subcategory": "code-translation",
+  "difficulty": "medium",
+  "tags": [
+   "translation",
+   "scala",
+   "python"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "python-scala-collections",
+   "python-scala-functional",
+   "python-scala-idioms",
+   "python-scala-libraries",
+   "python-scala-oop",
+   "python-scala-syntax-mapping"
+  ],
+  "summary": "Python to Scala Code Translation"
+ },
+ {
+  "task_id": "quantum-numerical-simulation",
+  "category": "natural-science",
+  "subcategory": "quantum-simulation",
+  "difficulty": "medium",
+  "tags": [
+   "quantum",
+   "quantum-simulation"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "qutip"
+  ],
+  "summary": "Simulate an open Dicke model's behavior in steady state and calculate its cavity field Wigner function under 4 different loss cases and save result as CSV file."
+ },
+ {
+  "task_id": "r2r-mpc-control",
+  "category": "industrial-physical-systems",
+  "subcategory": "control-systems",
+  "difficulty": "medium",
+  "tags": [
+   "mpc",
+   "manufacturing",
+   "tension-control",
+   "lqr",
+   "python",
+   "state-space",
+   "r2r"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "finite-horizon-lqr",
+   "integral-action-design",
+   "mpc-horizon-tuning",
+   "state-space-linearization"
+  ],
+  "summary": "The task is designed for a 6-section Roll-to-Roll manufacturing line. You need to implement an MPC controller to control and make web tensions stable during section 3 roller…"
+ },
+ {
+  "task_id": "radar-vital-signs",
+  "category": "natural-science",
+  "subcategory": "biomedical-analysis",
+  "difficulty": "medium",
+  "tags": [
+   "radar",
+   "signal-processing",
+   "biomedical",
+   "vital-signs",
+   "python"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "radar-signal-processing",
+   "radar-vital-signs",
+   "vital-sign-extraction"
+  ],
+  "summary": "Task: Estimate heart rate and breathing rate from 15 24 GHz continuous-wave radar recordings. The data was from a dataset where the radar is hanged 40cm in front of a subject who…"
+ },
+ {
+  "task_id": "react-performance-debugging",
+  "category": "software-engineering",
+  "subcategory": "performance-optimization",
+  "difficulty": "hard",
+  "tags": [
+   "react",
+   "nextjs",
+   "performance",
+   "debugging",
+   "bundle-optimization"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "browser-testing",
+   "react-best-practices"
+  ],
+  "summary": "There's an e-commerce website implemented in Next.js that is extremely slow and users keep complaining about it. Some scenarios that users have been complaining about:"
+ },
+ {
+  "task_id": "reserves-at-risk-calc",
+  "category": "finance-economics",
+  "subcategory": "risk-analysis",
+  "difficulty": "medium",
+  "tags": [
+   "excel",
+   "finance",
+   "macrofinance",
+   "office"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "xlsx"
+  ],
+  "summary": "STEP 1: download global commodity excel database from https://www.imf.org/en/research/commodity-prices, extract gold price (US$ per troy ounce) and populate the data into \"Gold…"
+ },
+ {
+  "task_id": "sales-pivot-analysis",
+  "category": "office-white-collar",
+  "subcategory": "spreadsheet-workflow",
+  "difficulty": "medium",
+  "tags": [
+   "excel",
+   "pivot-tables",
+   "pdf",
+   "aggregation",
+   "data-integration"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pdf",
+   "xlsx"
+  ],
+  "summary": "read through the population data in /root/population.pdf and income daya in /root/income.xlsx and create a new report called /root/demographicanalysis.xlsx"
+ },
+ {
+  "task_id": "sec-financial-report",
+  "category": "finance-economics",
+  "subcategory": "sec-filings-analysis",
+  "difficulty": "hard",
+  "tags": [
+   "data processing",
+   "financial analysis"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "13f-analyzer",
+   "fuzzy-name-search"
+  ],
+  "summary": "You are a financial analyst in hedge fund, your task is to analyze the activities of hedge funds in q3 2025 by compare it with q2 2025. The dataset is downloaded to /root/2025-q2…"
+ },
+ {
+  "task_id": "seismic-phase-picking",
+  "category": "natural-science",
+  "subcategory": "seismology",
+  "difficulty": "hard",
+  "tags": [
+   "science",
+   "earth-science",
+   "seismology",
+   "ai4science"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "obspy-data-api",
+   "obspy-datacenter-client",
+   "seisbench-model-api",
+   "seismic-picker-selection"
+  ],
+  "summary": "You have 100 earthquake traces at /root/data/. Each file represents a trace recorded at a station."
+ },
+ {
+  "task_id": "setup-fuzzing-py",
+  "category": "cybersecurity",
+  "subcategory": "fuzzing",
+  "difficulty": "medium",
+  "tags": [
+   "security",
+   "build",
+   "vulnerability",
+   "continuous-integration",
+   "python"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "discover-important-function",
+   "fuzzing-python",
+   "setup-env"
+  ],
+  "summary": "You need to set up continuous fuzzing for some Python libraries. The libraries are available in the current directory /app/."
+ },
+ {
+  "task_id": "shock-analysis-demand",
+  "category": "finance-economics",
+  "subcategory": "macroeconomic-analysis",
+  "difficulty": "medium",
+  "tags": [
+   "excel",
+   "finance",
+   "macrofinance",
+   "office"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "xlsx"
+  ],
+  "summary": "This task is to estimate an investment spending shock to a small open economy (Georgia) using the macro accounting framework (demand side). The investment will last 8 years…"
+ },
+ {
+  "task_id": "shock-analysis-supply",
+  "category": "finance-economics",
+  "subcategory": "macroeconomic-analysis",
+  "difficulty": "hard",
+  "tags": [
+   "excel",
+   "finance",
+   "macrofinance",
+   "office",
+   "production-function"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "xlsx"
+  ],
+  "summary": "This task is to estimate an investment spending shock to a small open economy (Georgia) using Cobb-Douglas production function to estimate the potential GDP. The investment will…"
+ },
+ {
+  "task_id": "simpo-code-reproduction",
+  "category": "software-engineering",
+  "subcategory": "paper-to-code-reproduction",
+  "difficulty": "hard",
+  "tags": [
+   "code-reproduction",
+   "nlp",
+   "paper-to-code",
+   "unit-tests"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "nlp-research-repo-package-installment",
+   "pdf"
+  ],
+  "summary": "You will reproduce a code repo for NLP papers."
+ },
+ {
+  "task_id": "software-dependency-audit",
+  "category": "cybersecurity",
+  "subcategory": "vulnerability-analysis",
+  "difficulty": "medium",
+  "tags": [
+   "security",
+   "vulnerability-scanning",
+   "dependencies"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "cvss-score-extraction",
+   "trivy-offline-vulnerability-scanning",
+   "vulnerability-csv-reporting"
+  ],
+  "summary": "You are a software security engineer. Given a dependency file, you need to perform a security audit to identify vulnerabilities in third-party dependencies."
+ },
+ {
+  "task_id": "spring-boot-jakarta-migration",
+  "category": "software-engineering",
+  "subcategory": "migration",
+  "difficulty": "hard",
+  "tags": [
+   "migration",
+   "compilation"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "hibernate-upgrade",
+   "jakarta-namespace",
+   "restclient-migration",
+   "spring-boot-migration",
+   "spring-security-6"
+  ],
+  "summary": "Under the /workspace/ folder, there is a legacy user management microservice that you need to migrate from Java 8/Spring Boot 2.7 to Java 21/Spring Boot 3.2. This microservice is…"
+ },
+ {
+  "task_id": "suricata-custom-exfil",
+  "category": "cybersecurity",
+  "subcategory": "intrusion-detection",
+  "difficulty": "medium",
+  "tags": [
+   "suricata",
+   "dpi",
+   "pcap",
+   "ids",
+   "rule-writing"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "pcap-triage-tshark",
+   "suricata-offline-evejson",
+   "suricata-rules-basics"
+  ],
+  "summary": "You’re investigating suspected data exfiltration hidden inside HTTP telemetry traffic."
+ },
+ {
+  "task_id": "syzkaller-ppdev-syzlang",
+  "category": "cybersecurity",
+  "subcategory": "fuzzing",
+  "difficulty": "medium",
+  "tags": [
+   "security",
+   "fuzzing",
+   "kernel",
+   "syzkaller",
+   "syzlang"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "syz-extract-constants",
+   "syzkaller-build-loop",
+   "syzlang-ioctl-basics"
+  ],
+  "summary": "Write syzkaller syzlang support for the Linux parallel port driver (ppdev). Right now /dev/parport isn’t described."
+ },
+ {
+  "task_id": "threejs-structure-parser",
+  "category": "media-content-production",
+  "subcategory": "3d-content",
+  "difficulty": "medium",
+  "tags": [
+   "threejs",
+   "json",
+   "3d",
+   "3D parts understanding",
+   "javascript"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "obj-exporter",
+   "threejs"
+  ],
+  "summary": "You are a nice Three.js specialist. You are here to help engineers to understand a complex Three.js file that represents a 3D object. The file is located at /root/data/object.js…"
+ },
+ {
+  "task_id": "threejs-to-obj",
+  "category": "media-content-production",
+  "subcategory": "3d-content",
+  "difficulty": "medium",
+  "tags": [
+   "threejs",
+   "obj",
+   "3d",
+   "node",
+   "javascript"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "obj-exporter",
+   "threejs"
+  ],
+  "summary": "You are a helpful 3D programmer who can write scripts to convert the Three.js code into simulation-ready 3D assets that can be imported by Blender."
+ },
+ {
+  "task_id": "tictoc-unnecessary-abort-detection",
+  "category": "software-engineering",
+  "subcategory": "concurrency-control",
+  "difficulty": "hard",
+  "tags": [
+   "concurrency-control",
+   "transactions",
+   "tictoc",
+   "trace-analysis"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "transaction-concurrency-control-foundations",
+   "transaction-protocol-reasoning",
+   "transaction-trace-analysis"
+  ],
+  "summary": "The famous TicToc concurrency-control mechanism can sometimes abort transactions that did not actually need to abort and could have been left in execution. Your task is to…"
+ },
+ {
+  "task_id": "travel-planning",
+  "category": "mathematics-or-formal-reasoning",
+  "subcategory": "calendar-scheduling",
+  "difficulty": "medium",
+  "tags": [
+   "travel",
+   "planning",
+   "constraints"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "search-accommodations",
+   "search-attractions",
+   "search-cities",
+   "search-driving-distance",
+   "search-flights",
+   "search-restaurants"
+  ],
+  "summary": "Task Build an itinerary for the user according to the following requirements: \"We require a 7-day travel itinerary for two leaving from Minneapolis and covering three cities in…"
+ },
+ {
+  "task_id": "video-silence-remover",
+  "category": "media-content-production",
+  "subcategory": "video-processing",
+  "difficulty": "hard",
+  "tags": [
+   "video",
+   "audio-analysis",
+   "ffmpeg",
+   "signal-processing"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "audio-extractor",
+   "energy-calculator",
+   "pause-detector",
+   "report-generator",
+   "segment-combiner",
+   "silence-detector",
+   "video-processor"
+  ],
+  "summary": "Video Silence Remover Task"
+ },
+ {
+  "task_id": "weighted-gdp-calc",
+  "category": "finance-economics",
+  "subcategory": "macroeconomic-analysis",
+  "difficulty": "medium",
+  "tags": [
+   "excel",
+   "finance",
+   "macrofinance",
+   "office",
+   "excel-index-match",
+   "statistics"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "xlsx"
+  ],
+  "summary": "You need to calculate the weighted mean of net exports as a percentage of GDP for the GCC in the file gdp.xlsx. The workbook contains two sheets: \"Task\" (where you will enter…"
+ },
+ {
+  "task_id": "xlsx-recover-data",
+  "category": "finance-economics",
+  "subcategory": "financial-modeling",
+  "difficulty": "medium",
+  "tags": [
+   "excel",
+   "data-recovery",
+   "financial-analysis",
+   "cross-sheet-dependencies"
+  ],
+  "network": "public",
+  "bundled_skills": [
+   "data-reconciliation",
+   "xlsx"
+  ],
+  "summary": "Recover missing values in an Excel file nasabudgetincomplete.xlsx. Missing values are marked with \"???\". Analyze the relationships between sheets to determine the correct values…"
+ }
+]
