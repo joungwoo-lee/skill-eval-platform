@@ -2,8 +2,15 @@
 
 패턴(정규식) 채점의 보완: 표현 방식·언어에 묶이지 않고 의미를 읽으며,
 패턴이 원리적으로 못 보는 것(내용 타당성, 내부 모순, 절차 누락)을 본다.
-대신 비결정적이고 호출 비용이 있다. 최종 정적 평가는 static_final.combine_static()이
-패턴 채점과 비교·합성해 낸다. 스킬 파일은 읽기만 한다.
+최종 정적 평가는 static_final.combine_static()이 패턴 채점과 비교·합성해 낸다.
+스킬 파일은 읽기만 한다.
+
+판정 주체 두 경로:
+1. 셀프 판정 (기본) — 이 플랫폼을 구동하는 에이전트 자신이 LLM이므로, 본인이
+   루브릭을 채점해 JSON payload를 만들고 result_from_payload()/CLI --judge-file로
+   전달한다. 추가 모델 호출 없음(비용 0, 환경 의존 없음).
+2. 서브프로세스 폴백 — judge_skill_llm()이 headless `claude -p`를 띄운다.
+   에이전트 밖(순수 스크립트/CI)에서만 쓴다. 호출 비용 발생.
 """
 from __future__ import annotations
 
@@ -72,11 +79,15 @@ SKILL.md 전문:
 
 
 def _default_runner(prompt: str, model: str, claude_bin: str, timeout: int) -> str:
-    """claude -p headless 실행, 결과 텍스트 반환."""
+    """claude -p headless 실행, 결과 텍스트 반환.
+
+    stdin=DEVNULL 필수: 프롬프트는 argv로 전달하는데 stdin을 열어두면 게이트웨이류
+    환경에서 "no stdin data received in 3s" 후 exit 1로 죽는다.
+    """
     proc = subprocess.run(
         [claude_bin, "-p", prompt, "--model", model, "--output-format", "json"],
         capture_output=True, text=True, timeout=timeout,
-        encoding="utf-8", errors="replace",
+        encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL,
     )
     if proc.returncode != 0:
         raise RuntimeError(f"claude exit {proc.returncode}: {proc.stderr[:500]}")
@@ -94,16 +105,11 @@ def parse_judge_json(text: str) -> dict:
     return json.loads(m.group(0))
 
 
-def judge_skill_llm(
-    skill: SkillPackage,
-    model: str = "claude-haiku-4-5-20251001",
-    claude_bin: str = "claude",
-    timeout: int = 300,
-    runner: Callable[[str, str, str, int], str] | None = None,
-) -> LlmJudgeResult:
-    """LLM 판정 1회. runner 주입으로 테스트 가능(실 호출 없이)."""
-    text = (runner or _default_runner)(_build_prompt(skill), model, claude_bin, timeout)
-    payload = parse_judge_json(text)
+def result_from_payload(payload: dict, model: str = "self-agent", raw: str = "") -> LlmJudgeResult:
+    """판정 payload({"scores": ..., "rationales": ..., "top_risks": ...}) 검증·정규화.
+
+    셀프 판정(에이전트가 직접 작성한 JSON)과 서브프로세스 응답이 공용으로 쓴다.
+    """
     scores_raw = payload.get("scores", {})
     scores = {
         dim: max(0.0, min(1.0, float(scores_raw[dim])))
@@ -117,6 +123,18 @@ def judge_skill_llm(
         scores=scores,
         rationales={k: str(v) for k, v in payload.get("rationales", {}).items()},
         top_risks=[str(r) for r in payload.get("top_risks", [])][:3],
-        model=model,
-        raw=text,
+        model=str(payload.get("model", model)),
+        raw=raw,
     )
+
+
+def judge_skill_llm(
+    skill: SkillPackage,
+    model: str = "claude-haiku-4-5-20251001",
+    claude_bin: str = "claude",
+    timeout: int = 300,
+    runner: Callable[[str, str, str, int], str] | None = None,
+) -> LlmJudgeResult:
+    """서브프로세스 폴백: headless claude 판정 1회. runner 주입으로 테스트 가능."""
+    text = (runner or _default_runner)(_build_prompt(skill), model, claude_bin, timeout)
+    return result_from_payload(parse_judge_json(text), model=model, raw=text)

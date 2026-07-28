@@ -83,6 +83,52 @@ def test_combine_flags_divergence(skill):
     assert "괴리" in md
 
 
+def test_result_from_payload_self_judge():
+    from skill_eval.analyzers.llm_judge import result_from_payload
+
+    r = result_from_payload({"scores": _GOOD_SCORES, "model": "claude-fable-5"})
+    assert r.model == "claude-fable-5"
+    assert set(r.scores) == set(RUBRIC)
+    with pytest.raises(ValueError, match="missing dimensions"):
+        result_from_payload({"scores": {"trigger": 1.0}})
+
+
+def test_cli_judge_file_single(tmp_path):
+    from skill_eval.cli import main
+
+    judge = tmp_path / "judge.json"
+    judge.write_text(json.dumps({"scores": _GOOD_SCORES, "model": "self"}), encoding="utf-8")
+    out = tmp_path / "final.md"
+    rc = main([
+        "lint",
+        "--skill", str(ROOT / "skills" / "demo-report" / "1.0.0"),
+        "--judge-file", str(judge),
+        "--out", str(out),
+    ])
+    assert rc == 0
+    md = out.read_text(encoding="utf-8")
+    assert "패턴 vs LLM 비교" in md and "추정 효율 상승" in md
+
+
+def test_cli_judge_file_mapping(tmp_path):
+    from skill_eval.cli import main
+
+    judge = tmp_path / "judge.json"
+    judge.write_text(
+        json.dumps({"demo-report": {"scores": _GOOD_SCORES, "model": "self"}}),
+        encoding="utf-8",
+    )
+    out = tmp_path / "final.md"
+    rc = main([
+        "lint",
+        "--skill", str(ROOT / "skills" / "demo-report" / "1.0.0"),
+        "--judge-file", str(judge),
+        "--out", str(out),
+    ])
+    assert rc == 0
+    assert "패턴 vs LLM 비교" in out.read_text(encoding="utf-8")
+
+
 def test_final_markdown_headline(skill):
     pattern = lint_skill(skill)
     llm = judge_skill_llm(skill, runner=_fake_runner())

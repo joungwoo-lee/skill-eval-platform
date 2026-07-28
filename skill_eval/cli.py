@@ -9,13 +9,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 from .adapters.claude_code import ClaudeCodeAdapter
 from .adapters.mock import MockAdapter
 from .analyzers.coverage import compute_coverage
-from .analyzers.llm_judge import judge_skill_llm
+from .analyzers.llm_judge import judge_skill_llm, result_from_payload
 from .analyzers.static_final import combine_static, render_final_markdown
 from .analyzers.static_lint import lint_skill, render_lint_markdown
 from .importers.skillsbench import import_sb_task, list_sb_tasks
@@ -144,20 +145,36 @@ def _cmd_lint(args: argparse.Namespace) -> int:
     chunks: list[str] = []
     rows: list[tuple[str, str, float]] = []  # (label, mode, est_uplift)
 
+    judge_data: dict | None = None
+    if args.judge_file:
+        judge_data = json.loads(Path(args.judge_file).read_text(encoding="utf-8"))
+
     for skill in skills:
         pattern = lint_skill(skill)
         label = f"{pattern.skill_id}@{pattern.version}" if pattern.version else pattern.skill_id
-        if args.judge:
+
+        llm = None
+        if judge_data is not None:
+            # 셀프 판정: 단일 스킬이면 flat payload 허용, 복수면 {skill_id: payload} 매핑
+            payload = judge_data if ("scores" in judge_data and len(skills) == 1) \
+                else judge_data.get(pattern.skill_id) or judge_data.get(skill.skill_id)
+            if payload is None:
+                print(f"[warn] {label}: judge-file에 해당 스킬 payload 없음 → 패턴 채점만 사용")
+            else:
+                llm = result_from_payload(payload)
+        elif args.judge:
             try:
                 llm = judge_skill_llm(skill, model=args.judge_model)
-                final = combine_static(pattern, llm)
-                chunks.append(render_final_markdown(final))
-                rows.append((label, "패턴+LLM 합성", final.est_efficiency_uplift))
-                continue
             except (RuntimeError, ValueError, OSError) as e:
                 print(f"[warn] {label}: LLM 판정 실패({e}) → 패턴 채점만 사용")
-        chunks.append(render_lint_markdown(pattern))
-        rows.append((label, "패턴만", pattern.est_efficiency_uplift))
+
+        if llm is not None:
+            final = combine_static(pattern, llm)
+            chunks.append(render_final_markdown(final))
+            rows.append((label, f"패턴+LLM({llm.model}) 합성", final.est_efficiency_uplift))
+        else:
+            chunks.append(render_lint_markdown(pattern))
+            rows.append((label, "패턴만", pattern.est_efficiency_uplift))
 
     if len(rows) > 1:
         head = ["# Static Evaluation Summary", "",
@@ -233,8 +250,12 @@ def main(argv: list[str] | None = None) -> int:
     p_lint = sub.add_parser("lint", help="정적 진단: 패턴 채점 + (--judge) LLM 판정 비교·합성")
     p_lint.add_argument("--skill", action="append", required=True,
                         help="스킬 디렉토리 (반복 가능)")
+    p_lint.add_argument("--judge-file",
+                        help="셀프 판정 JSON 경로 — 구동 에이전트가 직접 채점한 루브릭 점수"
+                             " ({\"scores\": ...} 또는 {\"<skill-id>\": {\"scores\": ...}})."
+                             " 추가 모델 호출 없이 패턴과 비교·합성")
     p_lint.add_argument("--judge", action="store_true",
-                        help="LLM 판정 추가 — 패턴과 비교·합성한 최종 정적 평가 (claude 호출 비용 발생)")
+                        help="폴백: headless claude 서브프로세스로 LLM 판정 (에이전트 밖 환경용, 비용 발생)")
     p_lint.add_argument("--judge-model", default="claude-haiku-4-5-20251001")
     p_lint.add_argument("--out", help="마크다운 출력 경로 (생략 시 stdout)")
     p_lint.set_defaults(func=_cmd_lint)

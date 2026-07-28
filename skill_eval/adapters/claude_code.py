@@ -55,9 +55,11 @@ class ClaudeCodeAdapter(AgentAdapter):
         ]
         t0 = time.time()
         try:
+            # stdin=DEVNULL: 게이트웨이류 환경에서 stdin 대기("no stdin data received") 후 exit 1 방지
             proc = subprocess.run(
                 cmd, cwd=str(workdir), capture_output=True, text=True,
                 timeout=self.timeout_seconds, encoding="utf-8", errors="replace",
+                stdin=subprocess.DEVNULL,
             )
         except subprocess.TimeoutExpired:
             out.error = f"timeout after {self.timeout_seconds}s"
