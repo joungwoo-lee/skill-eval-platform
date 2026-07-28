@@ -44,6 +44,10 @@ MVP 구현체다.
 
 이 플랫폼은 **측정 전용**이다 — 평가 대상 스킬을 수정·개선하는 기능은 두지 않는다.
 
+`lint`(정적 진단)는 실행 없이 SKILL.md 구조만 채점하는 **추정**이다: 발동 조건 구체성,
+단계화, 모호어 밀도, 검증·오류 대응 지침, 동봉 자원 참조 일치, 분량 오버헤드 등
+9개 항목 가중 점수(0~100). 실측 Skill Lift를 대체하지 않으며 실행 전 스크리닝용이다.
+
 ## 설치
 
 ```bash
@@ -55,6 +59,9 @@ uv venv && uv pip install -e ".[dev]"   # 또는 pip install -e ".[dev]"
 ```bash
 # 레지스트리 확인
 skill-eval list
+
+# 정적 진단 — 실행 없이 SKILL.md 구조 채점 (비용 0, 스크리닝용 추정)
+skill-eval lint --skill skills/demo-report/1.0.0 --skill <다른 스킬 경로>
 
 # 데모 태스크 × 데모 스킬, C0(스킬 없음)/C1(스킬 적용) 각 5회 (mock 어댑터 — LLM 비용 없음)
 skill-eval run --task tasks/demo/hello-report-001 --skill skills/demo-report/1.0.0 \

@@ -15,6 +15,7 @@ from pathlib import Path
 from .adapters.claude_code import ClaudeCodeAdapter
 from .adapters.mock import MockAdapter
 from .analyzers.coverage import compute_coverage
+from .analyzers.static_lint import lint_skill, render_lint_markdown
 from .models import Store
 from .registry import SkillPackage, TaskPackage, discover_skills, discover_tasks
 from .report import build_report, render_markdown
@@ -133,6 +134,26 @@ def _cmd_batch(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_lint(args: argparse.Namespace) -> int:
+    """정적 진단: 실행 없이 SKILL.md 구조 채점 (예측 — 실측 대체 아님)."""
+    reports = [lint_skill(SkillPackage.load(p)) for p in args.skill]
+    chunks = [render_lint_markdown(r) for r in reports]
+    if len(reports) > 1:
+        head = ["# Static Lint Summary", "", "| 스킬 | 점수 | 추정 토큰 | 개선 포인트 수 |", "|---|---|---|---|"]
+        for r in reports:
+            label = f"{r.skill_id}@{r.version}" if r.version else r.skill_id
+            head.append(f"| {label} | {r.total_score} | {r.est_tokens:,} | {len(r.findings)} |")
+        chunks.insert(0, "\n".join(head))
+    md = "\n\n---\n\n".join(chunks)
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(md, encoding="utf-8")
+        print(f"lint report written → {args.out}")
+    else:
+        print(md)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")  # Windows cp949 콘솔에서 한글 리포트 깨짐 방지
@@ -166,6 +187,12 @@ def main(argv: list[str] | None = None) -> int:
     p_batch.add_argument("--model", default="claude-sonnet-5")
     p_batch.add_argument("--out-dir", default="results/batch")
     p_batch.set_defaults(func=_cmd_batch)
+
+    p_lint = sub.add_parser("lint", help="정적 진단: 실행 없이 SKILL.md 구조 채점 (스크리닝용 추정)")
+    p_lint.add_argument("--skill", action="append", required=True,
+                        help="스킬 디렉토리 (반복 가능)")
+    p_lint.add_argument("--out", help="마크다운 출력 경로 (생략 시 stdout)")
+    p_lint.set_defaults(func=_cmd_lint)
 
     p_rep = sub.add_parser("report", help="지표 계산·리포트 생성")
     p_rep.add_argument("--db", default="results/results.db")
