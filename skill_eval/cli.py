@@ -85,6 +85,60 @@ def _cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_batch(args: argparse.Namespace) -> int:
+    """복수 스킬 일괄 평가: 스킬별 DB·리포트 생성 + summary.md."""
+    skills = [SkillPackage.load(p) for p in args.skill]
+    all_tasks = discover_tasks(args.tasks_dir)
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    conditions = [_COND_ALIAS.get(c.strip(), c.strip()) for c in args.conditions.split(",")]
+
+    summary: list[tuple] = []
+    for skill in skills:
+        tasks = [t for t in all_tasks if t.required_skill == skill.skill_id]
+        if not tasks:
+            print(f"[skip] {skill.skill_id}: required_skill 매칭 태스크 없음 ({args.tasks_dir})")
+            summary.append((skill.skill_id, 0, None, None))
+            continue
+        db = out_dir / f"{skill.skill_id}.db"
+        if db.exists():
+            db.unlink()
+        store = Store(db)
+        runner = ExperimentRunner(store, _make_adapter(args))
+        distractors = [s for s in skills if s.skill_id != skill.skill_id]
+        for task in tasks:
+            runner.run_conditions(
+                task, skill, conditions, repeats=args.repeats,
+                seed=args.seed, distractor_skills=distractors,
+            )
+        coverage = None
+        if skill.constraints:
+            by_run: dict[str, dict[str, str]] = {}
+            for row in store.load_constraint_results():
+                by_run.setdefault(row["run_id"], {})[row["constraint_id"]] = row["verdict"]
+            coverage = compute_coverage(list(by_run.values()), len(skill.constraints))
+        report = build_report(store, coverage=coverage)
+        md_path = out_dir / f"{skill.skill_id}.md"
+        md_path.write_text(
+            render_markdown(report, title=f"Skill Evaluation — {skill.skill_id}@{skill.version}"),
+            encoding="utf-8",
+        )
+        summary.append((skill.skill_id, len(tasks), report.skill_lift, report.operational_lift))
+        print(f"[done] {skill.skill_id}: tasks={len(tasks)} → {md_path}")
+        store.close()
+
+    fmt = lambda v: f"{v:+.1%}" if v is not None else "-"
+    lines = ["# Skill Eval Batch Summary", "",
+             "| 스킬 | 태스크 | Skill Lift | Operational Lift |", "|---|---|---|---|"]
+    for sid, ntasks, lift, oplift in summary:
+        lines.append(f"| {sid} | {ntasks} | {fmt(lift)} | {fmt(oplift)} |")
+    text = "\n".join(lines) + "\n"
+    (out_dir / "summary.md").write_text(text, encoding="utf-8")
+    print()
+    print(text)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")  # Windows cp949 콘솔에서 한글 리포트 깨짐 방지
@@ -107,6 +161,18 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--model", default="claude-sonnet-5")
     p_run.add_argument("--db", default="results/results.db")
     p_run.set_defaults(func=_cmd_run)
+
+    p_batch = sub.add_parser("batch", help="복수 스킬 일괄 평가 (스킬별 리포트 + summary.md)")
+    p_batch.add_argument("--skill", action="append", required=True,
+                         help="스킬 디렉토리 skills/<id>/<version> (반복 가능)")
+    p_batch.add_argument("--tasks-dir", default="tasks")
+    p_batch.add_argument("--conditions", default="C0,C1")
+    p_batch.add_argument("--repeats", type=int, default=3)
+    p_batch.add_argument("--seed", type=int, default=0)
+    p_batch.add_argument("--adapter", default="mock", choices=["mock", "claude-code"])
+    p_batch.add_argument("--model", default="claude-sonnet-5")
+    p_batch.add_argument("--out-dir", default="results/batch")
+    p_batch.set_defaults(func=_cmd_batch)
 
     p_rep = sub.add_parser("report", help="지표 계산·리포트 생성")
     p_rep.add_argument("--db", default="results/results.db")

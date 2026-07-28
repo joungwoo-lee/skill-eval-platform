@@ -1,4 +1,4 @@
-# skill-eval-platform
+# skill-eval-platform (스킬 이벨)
 
 스킬 생산성 자동평가 플랫폼. `SKILL.md` 기반 스킬이 AI 에이전트의 업무 성공률·시간·비용을
 얼마나 개선하는지(Skill Lift / Operational Lift) 자동 측정하고, 지침 커버리지와 실패 원인을
@@ -44,7 +44,24 @@ skill-eval run --task tasks/demo/hello-report-001 --skill skills/demo-report/1.0
 
 # 리포트 (Skill Lift, CI, McNemar, 커버리지, 실패 유형)
 skill-eval report --db results/results.db --skill skills/demo-report/1.0.0 --out results/report.md
+
+# 복수 스킬 일괄 평가 (스킬별 리포트 + summary.md; 서로가 C2 distractor)
+skill-eval batch --skill skills/A/1.0.0 --skill skills/B/1.0.0 \
+    --conditions C0,C1,C2 --repeats 3 --adapter mock --out-dir results/batch
 ```
+
+## Claude 스킬로 사용 (스킬 이벨)
+
+`claude-skill/skill-eval/`이 이 플랫폼을 구동하는 Claude Code 스킬이다.
+`~/.claude/skills/skill-eval`로 링크(junction)하면 "스킬 평가해" / "스킬 이벨 돌려"로 호출된다:
+
+```powershell
+cmd /c mklink /J "$env:USERPROFILE\.claude\skills\skill-eval" "C:\Users\joung\skill-eval-platform\claude-skill\skill-eval"
+```
+
+동작: 평가할 스킬(단수/복수) 지정 → 레지스트리 임포트·constraints.json 생성 →
+평가 태스크가 없으면 사용자에게 생성 여부를 한 번에 질문 → 승인 시 스킬별 태스크
+자동 생성(결정적 verifier + oracle 자가검증) → `batch` 일괄 실행 → Lift·커버리지 보고.
 
 실 에이전트 평가는 `--adapter claude-code --model claude-sonnet-5` (Claude Code headless,
 비용 발생 — mock으로 파이프라인 검증 후 사용).

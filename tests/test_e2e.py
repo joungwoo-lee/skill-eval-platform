@@ -128,3 +128,26 @@ def test_cli_smoke(tmp_path):
     ])
     assert rc == 0
     assert "Skill Lift" in out.read_text(encoding="utf-8")
+
+
+def test_cli_batch(tmp_path):
+    from skill_eval.cli import main
+
+    out_dir = tmp_path / "batch"
+    rc = main([
+        "batch",
+        "--skill", str(ROOT / "skills" / "demo-report" / "1.0.0"),
+        "--skill", str(ROOT / "skills" / "demo-distractor" / "1.0.0"),
+        "--tasks-dir", str(ROOT / "tasks"),
+        "--conditions", "C0,C1,C2",
+        "--repeats", "3",
+        "--adapter", "mock",
+        "--out-dir", str(out_dir),
+    ])
+    assert rc == 0
+    summary = (out_dir / "summary.md").read_text(encoding="utf-8")
+    # demo-report는 평가됨, demo-distractor는 매칭 태스크 없어 스킵(태스크 0)
+    assert "demo-report" in summary and "demo-distractor" in summary
+    assert (out_dir / "demo-report.md").exists()
+    assert not (out_dir / "demo-distractor.md").exists()
+    assert "Skill Lift" in (out_dir / "demo-report.md").read_text(encoding="utf-8")
