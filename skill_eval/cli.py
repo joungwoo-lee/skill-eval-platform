@@ -18,6 +18,7 @@ from .analyzers.coverage import compute_coverage
 from .analyzers.llm_judge import judge_skill_llm
 from .analyzers.static_final import combine_static, render_final_markdown
 from .analyzers.static_lint import lint_skill, render_lint_markdown
+from .importers.skillsbench import import_sb_task, list_sb_tasks
 from .models import Store
 from .registry import SkillPackage, TaskPackage, discover_skills, discover_tasks
 from .report import build_report, format_uplift, render_markdown
@@ -175,6 +176,26 @@ def _cmd_lint(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_import_sb(args: argparse.Namespace) -> int:
+    """SkillsBench(upstream) 태스크를 우리 레지스트리로 변환."""
+    if args.all:
+        srcs = list_sb_tasks(args.upstream)
+        if not srcs:
+            print(f"upstream 태스크 없음: {args.upstream}/tasks — 서브모듈 초기화 필요"
+                  " (git submodule update --init)")
+            return 1
+    else:
+        srcs = [Path(p) for p in (args.task or [])]
+        if not srcs:
+            print("--task 또는 --all 지정 필요")
+            return 1
+    for src in srcs:
+        dest = import_sb_task(src, dest_root=args.dest, required_skill=args.required_skill)
+        print(f"[imported] {src.name} → {dest}")
+    print(f"{len(srcs)}개 변환 완료. requires.network가 none이 아닌 태스크는 로컬 실행 시 실패 가능.")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")  # Windows cp949 콘솔에서 한글 리포트 깨짐 방지
@@ -217,6 +238,14 @@ def main(argv: list[str] | None = None) -> int:
     p_lint.add_argument("--judge-model", default="claude-haiku-4-5-20251001")
     p_lint.add_argument("--out", help="마크다운 출력 경로 (생략 시 stdout)")
     p_lint.set_defaults(func=_cmd_lint)
+
+    p_sb = sub.add_parser("import-sb", help="SkillsBench(upstream/) 태스크를 레지스트리로 변환")
+    p_sb.add_argument("--task", action="append", help="SkillsBench 태스크 디렉토리 (반복 가능)")
+    p_sb.add_argument("--all", action="store_true", help="upstream 전체 태스크 변환")
+    p_sb.add_argument("--upstream", default="upstream/skillsbench")
+    p_sb.add_argument("--dest", default="tasks/skillsbench")
+    p_sb.add_argument("--required-skill", help="변환 태스크에 매핑할 스킬 id (batch 매칭용)")
+    p_sb.set_defaults(func=_cmd_import_sb)
 
     p_rep = sub.add_parser("report", help="지표 계산·리포트 생성")
     p_rep.add_argument("--db", default="results/results.db")

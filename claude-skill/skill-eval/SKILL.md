@@ -12,7 +12,9 @@ description: 스킬 이벨 — SKILL.md 기반 스킬(단수/복수)의 실측 �
 ## 플랫폼 위치·의존성 자가점검 (스킬 발동 시 항상 먼저)
 
 1. `C:\Users\joung\skill-eval-platform` 존재 확인 — 없으면 클론:
-   `gh repo clone joungwoo-lee/skill-eval-platform C:/Users/joung/skill-eval-platform`
+   `gh repo clone joungwoo-lee/skill-eval-platform C:/Users/joung/skill-eval-platform -- --recurse-submodules`
+   (SkillsBench 태스크가 필요한데 `upstream/skillsbench`가 비어 있으면
+   `git submodule update --init` 실행)
 2. 의존성 확인 — 없으면 직접 설치 (사용자에게 묻지 말 것):
    `python -c "import yaml" || pip install pyyaml`
 3. 실행 중 `ModuleNotFoundError` 발생 시에도 같은 방식으로 해당 모듈 설치 후 재시도.
@@ -66,6 +68,10 @@ python -m skill_eval.cli lint --skill <스킬 경로> [--skill ...] --judge
 
 1. 사용자가 태스크(디렉토리)를 지정했으면 그것을 사용 (`tasks/` 밖이면 복사해 등록).
 2. 아니면 `tasks/`에서 `metadata.yaml`의 `required_skill == <skill-id>`인 기존 태스크 탐색.
+2.5 스킬 주제와 맞는 SkillsBench 공개 태스크(87개, `upstream/skillsbench/tasks/`)가
+   있으면 변환해 재사용 — 스킬 작성과 무관한 외부 출제라 자작 태스크보다 편향이 적다:
+   `python -m skill_eval.cli import-sb --task upstream/skillsbench/tasks/<id> --required-skill <skill-id>`
+   (변환된 metadata.yaml의 `requires.network`가 none이 아니면 로컬 실행 실패 가능 — 확인 후 사용)
 3. 태스크가 하나도 없는 스킬이 있으면 **생성 전 반드시 사용자에게 질문**한다.
    텍스트로 질문하고(이 환경에선 AskUserQuestion 도구가 취소될 수 있음),
    **복수 스킬이어도 질문은 한 번만 묶어서** 한다:

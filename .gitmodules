@@ -1,0 +1,3 @@
+[submodule "upstream/skillsbench"]
+	path = upstream/skillsbench
+	url = https://github.com/joungwoo-lee/skillsbench

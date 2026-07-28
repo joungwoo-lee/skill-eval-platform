@@ -16,7 +16,10 @@ MVP 구현체다.
 ### [SkillsBench](https://github.com/benchflow-ai/skillsbench) — 스킬 효과를 재는 기본 틀
 - **아이디어**: 같은 문제를 스킬 없이 한 번, 스킬 주고 한 번 풀게 해서 성공률 차이를 잰다. 그 차이가 곧 스킬의 효과다. 실제로 87개 문제에서 좋은 스킬이 해결률을 33.9%→50.5%로 올렸다.
 - **기술**: 문제 하나를 "지시문 + 시작 파일 + 채점기 + 정답 풀이" 세트로 포장해서, 누가 언제 돌려도 똑같이 채점되게 만든 것.
-- **여기서 가져온 것**: 태스크 패키지 구조, 스킬 유/무 비교 방식.
+- **여기서 가져온 것**: 태스크 패키지 구조, 스킬 유/무 비교 방식, 그리고 **실물 통합** —
+  포크([joungwoo-lee/skillsbench](https://github.com/joungwoo-lee/skillsbench))를 `upstream/skillsbench`
+  서브모듈로 두고, `import-sb` 커맨드가 87개 공개 태스크를 우리 레지스트리 포맷으로 변환한다
+  (verifier 어댑터가 `/root` 경로 재작성으로 로컬 채점, Docker/네트워크 요구는 `requires:`에 보존).
 
 ### [SWE-Skills-Bench](https://arxiv.org/abs/2603.15401) — 코딩 업무로 검증
 - **아이디어**: 진짜 코드 저장소의 수정 업무로 스킬을 시험한다. 성공/실패만 보지 않고 시간과 토큰(비용)이 얼마나 들었는지도 같이 잰다.
@@ -45,7 +48,7 @@ MVP 구현체다.
 | §14 데이터 모델 | SQLite (계획서는 PostgreSQL 권장 — MVP는 단일 파일) |
 | §16 통계 | McNemar 정확검정, 태스크 단위 짝지은 부트스트랩 95% CI |
 
-미구현(후속 단계): Docker 격리 실행, FastAPI 등록 API, 대시보드, SkillsBench 포크 통합(upstream/).
+미구현(후속 단계): Docker 격리 실행, FastAPI 등록 API, 대시보드.
 
 이 플랫폼은 **측정 전용**이다 — 평가 대상 스킬을 수정·개선하는 기능은 두지 않는다.
 
@@ -63,7 +66,9 @@ MVP 구현체다.
 ## 설치
 
 ```bash
+git clone --recurse-submodules https://github.com/joungwoo-lee/skill-eval-platform
 uv venv && uv pip install -e ".[dev]"   # 또는 pip install -e ".[dev]"
+# 이미 클론했다면: git submodule update --init  (upstream/skillsbench)
 ```
 
 ## 사용
@@ -88,6 +93,9 @@ skill-eval report --db results/results.db --skill skills/demo-report/1.0.0 --out
 # 복수 스킬 일괄 평가 (스킬별 리포트 + summary.md)
 skill-eval batch --skill skills/A/1.0.0 --skill skills/B/1.0.0 \
     --conditions C0,C1 --repeats 3 --adapter mock --out-dir results/batch
+
+# SkillsBench 공개 태스크 변환 (개별 또는 --all 87개)
+skill-eval import-sb --task upstream/skillsbench/tasks/citation-check --required-skill my-skill
 ```
 
 ## Claude 스킬로 사용 (스킬 이벨)
