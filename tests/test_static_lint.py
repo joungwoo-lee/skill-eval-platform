@@ -55,6 +55,43 @@ def test_lint_markdown_render(tmp_path):
     assert 0 <= report.est_efficiency_uplift <= report.ANCHOR_UPLIFT
 
 
+_KR_SKILL = """---
+name: report-maker
+description: 사용자가 "리포트 만들어"라고 하면 호출.
+---
+# report-maker
+
+1. data.csv 를 읽는다.
+2. report.md 를 작성한다 (형식: 제목 + 합계).
+3. 결과를 검증한 뒤 반환한다.
+4. 실패 시 한 번 재시도한다.
+5. 산출물 파일을 저장한다.
+"""
+
+_EN_SKILL = """---
+name: report-maker
+description: Invoke when the user says "make a report".
+---
+# report-maker
+
+1. Read data.csv.
+2. Write report.md (format: title + total).
+3. Verify the result before returning.
+4. Retry once on failure.
+5. Save the output file.
+"""
+
+
+def test_language_parity_kr_en(tmp_path):
+    """같은 내용의 한글판/영어판 스킬은 항목별 점수가 같아야 한다."""
+    kr = lint_skill(_make_skill(tmp_path / "kr", _KR_SKILL))
+    en = lint_skill(_make_skill(tmp_path / "en", _EN_SKILL))
+    kr_scores = {c.check_id: c.score for c in kr.checks}
+    en_scores = {c.check_id: c.score for c in en.checks}
+    assert kr_scores == en_scores, f"KR={kr_scores}\nEN={en_scores}"
+    assert kr.total_score == en.total_score
+
+
 def test_cli_lint(tmp_path):
     from skill_eval.cli import main
 

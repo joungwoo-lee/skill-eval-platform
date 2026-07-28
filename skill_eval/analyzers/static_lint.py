@@ -22,12 +22,38 @@ from dataclasses import dataclass, field
 
 from ..registry import SkillPackage
 
-# 모호어: 관측 가능한 행동으로 번역되지 않는 표현
+# 모호어: 관측 가능한 행동으로 번역되지 않는 표현.
+# 주의: 모든 패턴 집합은 한/영 대칭을 유지해야 한다 — 같은 내용의 스킬이
+# 언어에 따라 다른 점수를 받으면 안 된다 (tests/test_static_lint.py의 동등성 테스트가 강제).
 _VAGUE_PATTERNS = [
+    # KR
     r"잘\s", r"적절히", r"적절한", r"알아서", r"필요에\s*따라", r"가능하면",
     r"상황에\s*맞게", r"유연하게", r"신중히", r"충분히",
+    # EN
     r"\bproperly\b", r"\bappropriately\b", r"\bas\s+needed\b", r"\bif\s+necessary\b",
+    r"\bas\s+appropriate\b", r"\bwhen\s+possible\b", r"\bflexibly\b", r"\bcarefully\b",
+    r"\bideally\b", r"\bsufficiently\b",
 ]
+
+# 검증 절차 증거 (KR | EN)
+_VERIFY_RE = (
+    r"검증|확인한\s*뒤|확인\s*후|재확인|채점|테스트를?\s*(돌|실행)|"
+    r"\bverify|\bvalidat|\bself[- ]check\b|\bdouble[- ]check\b|\bconfirm\b|"
+    r"\bensure\b|\brun\s+(the\s+)?tests?\b|\bassert\b"
+)
+
+# 오류·실패 대응 증거 (KR | EN)
+_RECOVERY_RE = (
+    r"실패\s*시|실패하면|오류|에러|안\s*되면|재시도|복구|"
+    r"\berrors?\b|\bfail(s|ure|ed|ing)?\b|\bfallback\b|\bretry\b|\brecover|\btroubleshoot"
+)
+
+# 산출물·형식 증거 (KR | EN)
+_OUTPUT_RE = (
+    r"산출물|출력|결과\s*파일|파일명|형식|포맷|반환|작성한다|생성한다|저장한다|"
+    r"\boutput\b|\bdeliverable\b|\bartifact\b|\bformat\b|\breturn\b|"
+    r"\bproduce\b|\bgenerate\b|\bcreate\b|\bwrite\b|\bsave\b|\bfile\s*name\b"
+)
 
 _STEP_RE = re.compile(r"^\s*(\d+[.)]|[-*+])\s+\S", re.MULTILINE)
 
@@ -119,7 +145,7 @@ def lint_skill(skill: SkillPackage) -> LintReport:
     ))
 
     # verification — 자체 검증 절차
-    has_verify = bool(re.search(r"검증|확인한\s*뒤|확인\s*후|verify|self-check|테스트를?\s*(돌|실행)|채점", body, re.IGNORECASE))
+    has_verify = bool(re.search(_VERIFY_RE, body, re.IGNORECASE))
     add(CheckResult(
         "verification", "자체 검증 절차", 2.0, 1.0 if has_verify else 0.0,
         "검증 지침 있음" if has_verify else "검증 지침 없음",
@@ -127,7 +153,7 @@ def lint_skill(skill: SkillPackage) -> LintReport:
     ))
 
     # recovery — 오류 대응
-    has_recovery = bool(re.search(r"실패\s*시|오류|에러|error|fallback|재시도|retry|안\s*되면", body, re.IGNORECASE))
+    has_recovery = bool(re.search(_RECOVERY_RE, body, re.IGNORECASE))
     add(CheckResult(
         "recovery", "오류·실패 대응", 1.0, 1.0 if has_recovery else 0.0,
         "오류 대응 지침 있음" if has_recovery else "오류 대응 지침 없음",
@@ -135,7 +161,7 @@ def lint_skill(skill: SkillPackage) -> LintReport:
     ))
 
     # output_spec — 산출물 명시
-    has_output = bool(re.search(r"산출물|출력|결과\s*파일|파일명|형식|포맷|format|반환|작성한다|생성한다", body, re.IGNORECASE))
+    has_output = bool(re.search(_OUTPUT_RE, body, re.IGNORECASE))
     add(CheckResult(
         "output_spec", "산출물·형식 명시", 1.0, 1.0 if has_output else 0.0,
         "산출물 요구 있음" if has_output else "산출물 요구 없음",
