@@ -15,6 +15,8 @@ from pathlib import Path
 from .adapters.claude_code import ClaudeCodeAdapter
 from .adapters.mock import MockAdapter
 from .analyzers.coverage import compute_coverage
+from .analyzers.llm_judge import judge_skill_llm
+from .analyzers.static_final import combine_static, render_final_markdown
 from .analyzers.static_lint import lint_skill, render_lint_markdown
 from .models import Store
 from .registry import SkillPackage, TaskPackage, discover_skills, discover_tasks
@@ -136,16 +138,32 @@ def _cmd_batch(args: argparse.Namespace) -> int:
 
 
 def _cmd_lint(args: argparse.Namespace) -> int:
-    """정적 진단: 실행 없이 SKILL.md 구조 채점 (예측 — 실측 대체 아님)."""
-    reports = [lint_skill(SkillPackage.load(p)) for p in args.skill]
-    chunks = [render_lint_markdown(r) for r in reports]
-    if len(reports) > 1:
-        head = ["# Static Lint Summary", "",
-                "결론 지표 = **추정 효율 상승 %** (휴리스틱 — 실측 아님)", "",
-                "| 스킬 | 추정 효율 상승 | 구조 점수 | 추정 토큰 | 개선 포인트 수 |", "|---|---|---|---|---|"]
-        for r in reports:
-            label = f"{r.skill_id}@{r.version}" if r.version else r.skill_id
-            head.append(f"| {label} | ≈ {r.est_efficiency_uplift:+.0%} | {r.total_score} | {r.est_tokens:,} | {len(r.findings)} |")
+    """정적 진단: 패턴 채점 (+ --judge 시 LLM 판정 비교·합성 최종평가). 실측 대체 아님."""
+    skills = [SkillPackage.load(p) for p in args.skill]
+    chunks: list[str] = []
+    rows: list[tuple[str, str, float]] = []  # (label, mode, est_uplift)
+
+    for skill in skills:
+        pattern = lint_skill(skill)
+        label = f"{pattern.skill_id}@{pattern.version}" if pattern.version else pattern.skill_id
+        if args.judge:
+            try:
+                llm = judge_skill_llm(skill, model=args.judge_model)
+                final = combine_static(pattern, llm)
+                chunks.append(render_final_markdown(final))
+                rows.append((label, "패턴+LLM 합성", final.est_efficiency_uplift))
+                continue
+            except (RuntimeError, ValueError, OSError) as e:
+                print(f"[warn] {label}: LLM 판정 실패({e}) → 패턴 채점만 사용")
+        chunks.append(render_lint_markdown(pattern))
+        rows.append((label, "패턴만", pattern.est_efficiency_uplift))
+
+    if len(rows) > 1:
+        head = ["# Static Evaluation Summary", "",
+                "결론 지표 = **추정 효율 상승 %** (정적 추정 — 실측 아님)", "",
+                "| 스킬 | 방식 | 추정 효율 상승 |", "|---|---|---|"]
+        for label, mode, uplift in rows:
+            head.append(f"| {label} | {mode} | ≈ {uplift:+.0%} |")
         chunks.insert(0, "\n".join(head))
     md = "\n\n---\n\n".join(chunks)
     if args.out:
@@ -191,9 +209,12 @@ def main(argv: list[str] | None = None) -> int:
     p_batch.add_argument("--out-dir", default="results/batch")
     p_batch.set_defaults(func=_cmd_batch)
 
-    p_lint = sub.add_parser("lint", help="정적 진단: 실행 없이 SKILL.md 구조 채점 (스크리닝용 추정)")
+    p_lint = sub.add_parser("lint", help="정적 진단: 패턴 채점 + (--judge) LLM 판정 비교·합성")
     p_lint.add_argument("--skill", action="append", required=True,
                         help="스킬 디렉토리 (반복 가능)")
+    p_lint.add_argument("--judge", action="store_true",
+                        help="LLM 판정 추가 — 패턴과 비교·합성한 최종 정적 평가 (claude 호출 비용 발생)")
+    p_lint.add_argument("--judge-model", default="claude-haiku-4-5-20251001")
     p_lint.add_argument("--out", help="마크다운 출력 경로 (생략 시 stdout)")
     p_lint.set_defaults(func=_cmd_lint)
 
