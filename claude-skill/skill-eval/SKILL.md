@@ -53,21 +53,27 @@ SKILL.md 지침 중 **실행 궤적에서 관측 가능한 것만** 행동 제�
 ### 2.5 정적 평가 (선택 — 사용자가 "정적으로", "추산만", "lint" 요청 시 또는 실측 전 스크리닝)
 
 패턴(정규식 9항목, 결정적)과 LLM 판정을 항목별 비교·합성한다.
-**LLM 판정은 별도 모델 호출이 아니라 이 스킬을 구동하는 에이전트(너 자신)가 직접 한다** —
-너가 이미 LLM이다. claude 서브프로세스(`--judge`)는 에이전트 밖 환경 전용 폴백.
+**LLM 판정은 Agent 툴로 서브에이전트를 스폰해 시킨다** — 독립 컨텍스트라 구동
+에이전트의 자기 편향이 없고, 하네스 네이티브 전달이라 claude 서브프로세스의
+stdin류 전달 문제도 없다. 판정 결과는 JSON 텍스트로만 반환받는다.
 
-1. 대상 SKILL.md를 직접 읽고 루브릭 9항목을 0.0~1.0으로 채점한다
-   (문서에 실제 쓰인 것만 근거로, 선의 보완 해석 금지):
-   trigger(발동 조건 구체성) / steps(단계화) / vagueness(구체성) / verification(자체 검증) /
-   recovery(오류 대응) / output_spec(산출물 명시) / content_validity(내용 타당성) /
-   consistency(내부 일관성) / sufficiency(절차 충분성)
-2. `results/judge.json` 작성:
-   `{"scores": {9항목}, "rationales": {항목별 한 줄 근거}, "top_risks": [최대 3], "model": "<본인 모델명>"}`
-   — 복수 스킬이면 `{"<skill-id>": {위 구조}}` 매핑.
+1. 서브에이전트 스폰 (스킬당 1개, 복수 스킬이면 병렬). 프롬프트에 반드시 포함:
+   - 대상 SKILL.md **경로** (서브에이전트가 직접 Read — 본문 요약해 넘기지 말 것, 오염됨)
+   - 루브릭 9항목: trigger(발동 조건 구체성) / steps(단계화) / vagueness(구체성) /
+     verification(자체 검증) / recovery(오류 대응) / output_spec(산출물 명시) /
+     content_validity(내용 타당성) / consistency(내부 일관성) / sufficiency(절차 충분성)
+     — 각 0.0~1.0, 문서에 실제 쓰인 것만 근거, 선의 보완 해석 금지
+   - 반환 형식: **JSON 하나만, 다른 텍스트 금지**:
+     `{"scores": {9항목}, "rationales": {항목별 한 줄 근거}, "top_risks": [최대 3], "model": "<서브에이전트 모델명>"}`
+2. 반환 JSON을 `results/judge.json`에 저장 (복수 스킬이면 `{"<skill-id>": {payload}}` 매핑).
+   9항목 누락·형식 오류면 lint가 거부하므로, 그 오류 메시지로 서브에이전트에 1회 재요청.
 3. 합성 실행:
    ```bash
    python -m skill_eval.cli lint --skill <스킬 경로> [--skill ...] --judge-file results/judge.json
    ```
+
+폴백 순서: 서브에이전트 스폰 불가 환경 → 구동 에이전트 본인이 직접 채점해 같은
+JSON 작성 → 그것도 불가한 에이전트 밖(스크립트/CI)에서만 `--judge`(claude 서브프로세스).
 
 리포트의 **⚠ 괴리 항목**(패턴↔LLM 차이 ≥0.4)은 반드시 사용자에게 표시 —
 패턴 오탐/미탐 또는 셀프 판정 오판 후보. **보고 시 "추정이며 실측 아님" 명시.**
