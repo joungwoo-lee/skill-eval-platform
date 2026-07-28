@@ -97,14 +97,6 @@ def test_end_to_end_lift_and_report(task, skill, distractor, tmp_path):
     store.close()
 
 
-def test_ablation_condition_runs(task, skill, tmp_path):
-    store = Store(tmp_path / "results.db")
-    runner = ExperimentRunner(store, MockAdapter())
-    results = runner.run_conditions(task, skill, ["C3_ABLATION"], repeats=3, seed=1)
-    assert len(results) == 3
-    assert all(r.condition == "C3_ABLATION" for r in results)
-    store.close()
-
 
 def test_cli_smoke(tmp_path):
     from skill_eval.cli import main

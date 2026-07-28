@@ -41,29 +41,6 @@ class SkillPackage:
             constraints=constraints,
         )
 
-    def ablated(self, drop: str) -> "SkillPackage":
-        """C3 Ablation용 변형 (PLAN.md §7 C3).
-
-        drop: 'scripts' | 'references' | 'verification' 등 SKILL.md 섹션 제거.
-        MVP는 SKILL.md에서 `## <drop>` 섹션을 제거한 사본을 만든다.
-        """
-        lines = self.skill_md.splitlines()
-        kept: list[str] = []
-        skipping = False
-        for line in lines:
-            if line.startswith("## "):
-                skipping = drop.lower() in line.lower()
-            if not skipping:
-                kept.append(line)
-        clone = SkillPackage(
-            skill_id=self.skill_id,
-            version=f"{self.version}-ablate-{drop}",
-            root=self.root,
-            skill_md="\n".join(kept),
-            constraints=self.constraints,
-        )
-        return clone
-
 
 @dataclass
 class TaskPackage:

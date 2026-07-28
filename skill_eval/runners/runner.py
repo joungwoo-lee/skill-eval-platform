@@ -78,7 +78,7 @@ class ExperimentRunner:
                 run.constraint_verdicts = judge_constraints(constraints, run.trajectory)
 
             if not run.success:
-                skill_expected = spec.condition in ("C1_FORCED_SKILL", "C2_AUTO_DISCOVERY", "C3_ABLATION")
+                skill_expected = spec.condition in ("C1_FORCED_SKILL", "C2_AUTO_DISCOVERY")
                 run.failure_type, run.failure_rationale = attribute_failure(run, skill_expected)
 
             self.store.save_run(run)
@@ -119,9 +119,7 @@ class ExperimentRunner:
         pool = ([skill] if skill else []) + (distractor_skills or [])
         results: list[RunResult] = []
         for cond, i in schedule:
-            forced = skill if cond in ("C1_FORCED_SKILL",) else None
-            if cond == "C3_ABLATION" and skill:
-                forced = skill.ablated("scripts")
+            forced = skill if cond == "C1_FORCED_SKILL" else None
             skill_pool = pool if cond == "C2_AUTO_DISCOVERY" else None
             results.append(self.run_once(specs[cond], task, i, forced, skill_pool))
         return results

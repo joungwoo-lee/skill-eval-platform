@@ -113,7 +113,6 @@ _COND_LABEL = {
     "C0_NO_SKILL": "C0 No Skill",
     "C1_FORCED_SKILL": "C1 Forced Skill",
     "C2_AUTO_DISCOVERY": "C2 Auto Discovery",
-    "C3_ABLATION": "C3 Ablation",
 }
 
 

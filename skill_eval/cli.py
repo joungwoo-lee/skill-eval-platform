@@ -24,7 +24,6 @@ _COND_ALIAS = {
     "C0": "C0_NO_SKILL",
     "C1": "C1_FORCED_SKILL",
     "C2": "C2_AUTO_DISCOVERY",
-    "C3": "C3_ABLATION",
 }
 
 
@@ -154,7 +153,7 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--task", required=True, help="태스크 패키지 디렉토리")
     p_run.add_argument("--skill", help="대상 스킬 디렉토리 (skills/<id>/<version>)")
     p_run.add_argument("--distractor", action="append", help="C2용 무관 스킬 디렉토리 (반복 가능)")
-    p_run.add_argument("--conditions", default="C0,C1", help="쉼표구분: C0,C1,C2,C3")
+    p_run.add_argument("--conditions", default="C0,C1", help="쉼표구분: C0,C1,C2")
     p_run.add_argument("--repeats", type=int, default=3)
     p_run.add_argument("--seed", type=int, default=0)
     p_run.add_argument("--adapter", default="mock", choices=["mock", "claude-code"])
