@@ -72,4 +72,16 @@ C--Users-joung-skill-eval-platform            ← C:\Users\joung\skill-eval-plat
 SessionStart hook의 자식 프로세스는 부모 클로드 세션의 환경변수를 물려받는다.
 스위퍼가 Haiku 매칭을 `claude -p`로 돌리면 nested 마커가 새서 자식 클로드가 중첩 세션으로
 오판·이상동작할 수 있음 (launcher-restarter에서 동일 문제로 6개 변수 스크럽한 실측 전례).
-→ 스위퍼 시작부에서 `CLAUDE_CODE_*` 환경변수 제거, 또는 Haiku를 CLI 대신 **API 직접 호출**로 원천 회피.
+
+**해결법 — 100% 해소 가능. 확실성 순:**
+
+1. **API 직접 호출 (1순위, 원천 소멸)** — Haiku 매칭을 `claude -p` 대신 Anthropic API HTTP 호출로.
+   자식 클로드 CLI 자체가 없으므로 nested 마커 문제가 존재하지 않음. env가 뭘 물려받든 무관.
+   유일 조건: API 키 필요 (구독 OAuth와 별개 과금).
+2. **상속 고리 절단 (2순위, 구조적 완전)** — CLI를 꼭 쓴다면 hook에서 직접 스폰하지 말고
+   `schtasks /Run /TN sweep`으로 Windows 작업 스케줄러 경유: 스위퍼가 스케줄러 서비스의
+   자식으로 떠서 세션 env를 아예 상속받지 않음. 또는 .NET `ProcessStartInfo`로
+   EnvironmentVariables를 비우고 재구성해 클린 env 스폰.
+3. **열거식 스크럽 (비권장, 100% 아님)** — 알려진 변수 이름을 지우는 방식은 취약.
+   실측 전례: 처음 4개 스크럽 → 누락 발견돼 6개 추가. CLI 버전업마다 마커가 늘 수 있어
+   목록 유지보수 싸움이 됨. `CLAUDE*` 와일드카드 일괄 제거도 미래의 다른 prefix 마커에는 뚫림.
