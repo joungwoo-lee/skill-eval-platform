@@ -64,9 +64,11 @@
 ### 논블로킹 보장 — 이중 구조
 1. **구조적 안전**: 스위퍼 자체가 detach 백그라운드 → 발송이 느려도 클로드 세션·사용자 작업 블록 원천 불가
 2. **스위퍼 내부도 논블로킹**:
-   - 매칭 결과를 먼저 **로컬 스풀**(outbox.jsonl append)에 기록 — 진실 원장
+   - **outbox.jsonl 단일 파일이 처리 원장 겸 발송 스풀** (`{uuid, offset, result, sent}`) —
+     장부 이원화로 인한 유실·이중 처리 자체가 불가능 (중복 방지 상세: [session-matching-design.md](session-matching-design.md) §2-1)
+   - Haiku 호출 직전 in-progress 마킹 → 응답 즉시 결과 확정 기록 (크래시 시 재호출 낭비 유계)
    - 발송은 별도 단계: HTTP POST, 짧은 타임아웃(2~3s), 실패해도 매칭 작업 계속
-   - 다음 스윕 때 미발송분 재시도 — **at-least-once**
+   - 다음 스윕 때 `sent=false` 재시도 — **at-least-once** (재발송은 Haiku 재호출 아님, 토큰 비용 0)
 
 ### 서버 규칙
 - `sessionUuid` 기준 **idempotent upsert** — 재시도·resume 재매칭 중복 자동 해소
