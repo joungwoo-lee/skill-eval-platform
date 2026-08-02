@@ -2,6 +2,7 @@
 
 아바타 효율성 구조(→ [avatar-overview-map.html](avatar-overview-map.html) · [avatar-structure-map.html](avatar-structure-map.html))에서
 "세션 종료 시 Haiku가 세션 내용을 읽어 역할·업무에 매칭하고 효율계수 η를 산정"하는 작업의 실행 설계.
+매칭 이후 단계(η 산정·집계 송출·토큰 가치 산출)는 [efficiency-metrics-design.md](efficiency-metrics-design.md).
 
 **채택안: 클로드 세션 시작 시점에 백그라운드 스위퍼를 띄워, 시작 시점 이전의 미처리 transcript를 소급 처리한다.**
 
