@@ -1,8 +1,9 @@
 # 세션 → 업무 매칭 트리거 설계
 
 아바타 효율성 구조(→ [avatar-overview-map.html](avatar-overview-map.html) · [avatar-structure-map.html](avatar-structure-map.html))에서
-"세션 종료 시 Haiku가 세션 내용을 읽어 역할·업무에 매칭하고 효율계수 η를 산정"하는 작업을
-**언제, 무엇을 읽어** 수행할지에 대한 설계 정리.
+"세션 종료 시 Haiku가 세션 내용을 읽어 역할·업무에 매칭하고 효율계수 η를 산정"하는 작업의 실행 설계.
+
+**채택안: 클로드 세션 시작 시점에 백그라운드 스위퍼를 띄워, 시작 시점 이전의 미처리 transcript를 소급 처리한다.**
 
 ## 1. 분석 대상 파일 — transcript
 
@@ -21,35 +22,22 @@ C--Users-joung-skill-eval-platform            ← C:\Users\joung\skill-eval-plat
 - `%USERPROFILE%\.claude\projects\` 루트가 **PC 로그인 계정당 하나** → 로그인 ID 기준 아바타 선별과 자연스럽게 일치
 - Haiku 매칭 입력은 파일 전체가 아니라 **첫 user 프롬프트 + 마지막 N개 메시지(또는 summary 라인)** 만 — 토큰 절약
 
-## 2. 트리거 후보와 한계
+참고: SessionEnd hook은 정상 종료(exit, `/clear`, logout)에서만 발화한다.
+방치·강제 종료·크래시에서 안 걸리므로 종료 이벤트 기반 수집은 채택하지 않았다.
+세션 시작을 트리거로 쓰면 "이전에 어떻게 끝났든" 다음 기동 때 반드시 잡힌다.
 
-### SessionEnd hook — 단독 사용 불가
-- 발화 조건 = 정상 종료(exit, `/clear`, logout)뿐
-- **방치(터미널 열어둔 채 이탈), 창 강제 종료, 크래시, PC 절전 → 안 걸림**. 실사용에선 방치가 흔해 누락 큼
-- 걸리면 즉시 확정하는 조기 트리거로만 활용
+## 2. 채택 설계 — SessionStart 스위퍼
 
-### Stop hook + idle 판정 (실시간형 정답)
-1. Stop hook은 **매 턴 응답 완료마다** 발화 → 방치해도 "마지막 턴 완료" 기록은 남음
-   (인터랙티브 transcript는 종료 시점 flush라 라이브 tail 불가 — 2.1.177 실측. 권위를 Stop hook에 두는 이유)
-2. Stop에서는 `{uuid, transcript_path, 시각}`만 터치파일/큐에 기록 (매번 Haiku 돌리면 과도)
-3. 스위퍼가 주기적으로 "마지막 Stop 후 T시간(예: 2h) 무활동 + mtime 정지" 세션을 종료로 간주 → Haiku 매칭
-4. resume 대비: 매칭 결과를 **세션 uuid 기준 upsert** — 재개되면 다음 idle 판정 때 재매칭·갱신
+1. settings.json에 SessionStart hook 등록 (matcher `startup` — resume/clear 제외)
+2. hook은 스위퍼 스크립트를 **detach 스폰 후 즉시 리턴**
+   (hook이 안 끝나면 세션 기동이 블록됨 → `Start-Process -WindowStyle Hidden` 필수)
+3. 스위퍼: `~/.claude/projects/` 전체에서 다음 조건의 transcript만 골라 Haiku 매칭 → 처리 원장(ledger)에 기록
 
-### 야간 배치 (최소 구현형)
-```powershell
-$since = (Get-Content state.json | ConvertFrom-Json).lastRun   # 마지막 실행 시각
-Get-ChildItem "$env:USERPROFILE\.claude\projects" -Recurse -Filter *.jsonl |
-  Where-Object { $_.LastWriteTime -gt $since }
-```
-- "당일" 대신 **"마지막 실행 시각 이후"** 기준 — 스케줄 하루 빠져도 자동 보정, 자정 걸친 세션 누락 없음
-- 밤엔 대부분 idle → flush 미완 문제 거의 없음. mtime 최근 30분 이내(진행 중)는 스킵해 다음 밤 처리
-- 파일별 마지막 처리 오프셋 저장 → 증분 읽기
-- 트레이드오프: 매칭 최대 하루 지연. 일 단위 대시보드면 충분
-
-### SessionStart 스위퍼 (클로드 켤 때 밀린 것 처리)
-- SessionStart hook(matcher `startup`)에서 스위퍼 스크립트를 **detach 스폰 후 즉시 리턴**
-  (hook이 안 끝나면 세션 기동이 블록됨 → `Start-Process -WindowStyle Hidden` 필수)
-- 스위퍼: `mtime < 세션 시작 시각` AND 처리 원장(ledger)에 없는 uuid만 골라 매칭 → 원장 기록
+**처리 대상 조건 (세션 시작 시점 기준):**
+- `mtime < 이번 세션 시작 시각`
+- AND 처리 원장에 없는 uuid (또는 원장 기록 이후 mtime이 갱신된 uuid — resume 재매칭)
+- AND mtime이 최근 30분 이내가 아님 (다른 진행 중 세션 제외)
+- AND 자기 자신 uuid 아님
 
 ```json
 "hooks": {
@@ -61,12 +49,16 @@ Get-ChildItem "$env:USERPROFILE\.claude\projects" -Recurse -Filter *.jsonl |
 }
 ```
 
-필수 가드 3개:
+**필수 가드 3개:**
 1. **락파일 단일 인스턴스** — 세션 동시 다발 기동 시 스위퍼 중복 방지
 2. **스로틀** — 마지막 스윕 후 N시간 경과 시에만 실행 (원장에 lastSweep 기록)
 3. **진행 중 세션 제외** — mtime 최근 30분 이내 스킵 + 자기 자신 uuid 제외
 
-장점: 크론 등록 불필요, 클로드를 쓰는 날에만 돎. 한계: 안 켜는 날 지연 → 야간 배치와 병용 시 상호 보완(원장 공유로 이중처리 없음).
+**공통 원칙:** 매칭 결과는 **세션 uuid 기준 upsert** (resume으로 이어진 세션은 다음 스윕에서 재매칭·갱신),
+처리 이력은 **공유 원장 하나**로 — 이중 매칭 없음.
+
+장점: 크론·스케줄러 등록 불필요, 클로드를 쓰는 날에만 돎 — 사용자가 클로드를 켜는 행위 자체가 배치 트리거.
+한계: 클로드를 안 켜는 날은 처리 지연 (다음 기동 때 소급 처리되므로 누락은 아님).
 
 ## 3. 진행 중 세션 무간섭 근거
 
@@ -81,15 +73,3 @@ SessionStart hook의 자식 프로세스는 부모 클로드 세션의 환경변
 스위퍼가 Haiku 매칭을 `claude -p`로 돌리면 nested 마커가 새서 자식 클로드가 중첩 세션으로
 오판·이상동작할 수 있음 (launcher-restarter에서 동일 문제로 6개 변수 스크럽한 실측 전례).
 → 스위퍼 시작부에서 `CLAUDE_CODE_*` 환경변수 제거, 또는 Haiku를 CLI 대신 **API 직접 호출**로 원천 회피.
-
-## 4. 권장 조합
-
-| 구성 | 역할 |
-|---|---|
-| Stop hook | 마지막 활동 시각 기록 (이벤트 신호) |
-| idle 스위퍼 (주기) | "마지막 Stop 후 T시간 무활동" 세션 종료 판정 → Haiku 매칭 |
-| SessionStart 스위퍼 | 클로드 기동 시 밀린 미처리 transcript 소급 처리 |
-| 야간 배치 | 훅 누락·크래시 보정 스윕 (최후 안전망) |
-| SessionEnd hook | 걸리면 즉시 확정하는 조기 트리거 (보너스) |
-
-공통 원칙: 결과는 **세션 uuid 기준 upsert**, 처리 이력은 **공유 원장(ledger)** 하나로 — 어떤 경로로 처리되든 이중 매칭 없음.
