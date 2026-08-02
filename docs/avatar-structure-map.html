@@ -351,7 +351,7 @@
       <div class="stack">
         <div class="card task-card" id="task1">
           <div class="task-head">
-            <span class="name">CAN-FD 컨트롤러 IP RTL 설계</span>
+            <span class="name">CAN-FD IP RTL 설계</span>
             <span><span class="weight">w=50%</span> <span class="eff-badge">η=3.4×</span></span>
           </div>
           <ul class="todo">
@@ -434,7 +434,7 @@
   <div class="session-layer">
     <div class="layer-title">⑤ 세션 → 업무 매칭 · 효율계수 산정 파이프라인</div>
     <div class="pipeline">
-      <div class="pipe-step filter">
+      <div class="pipe-step filter" id="pipefilter">
         <b>1. 아바타 선별</b>
         <div class="note">PC 로그인 계정 ID 기준 아바타 카드 선별 (login: skim → 🚗 김설계)</div>
       </div>
@@ -464,7 +464,7 @@
       <div class="session-card" id="sess1">
         <span class="sid">session #241</span> <span class="eff-badge">η=3.4×</span>
         <div class="summary">"CAN-FD 프로토콜 엔진 RTL 초안 생성, 비트 타이밍 설정 레지스터…"</div>
-        <div class="match">🤖 매칭 → <b>RTL 설계 / CAN-FD 컨트롤러 IP RTL 설계</b></div>
+        <div class="match">🤖 매칭 → <b>RTL 설계 / CAN-FD IP RTL 설계</b></div>
         <div class="eff-line">수작업 시뮬 17h ÷ 세션 5h = 3.4×</div>
       </div>
       <div class="session-card" id="sess2">
@@ -529,7 +529,12 @@
     ["task4", "skills4"], ["task5", "skills5"],
   ];
   const dashedEdges = [
-    ["sess1", "task1"], ["sess2", "task2"], ["sess3", "task4"],
+    ["sess1", "task1", "#241 · η=3.4×"],
+    ["sess2", "task2", "#242 · η=5.1×"],
+    ["sess3", "task4", "#243 · η=2.8×"],
+  ];
+  const selectEdges = [
+    ["pipefilter", "avatar1", "로그인 ID로 아바타 선별"],
   ];
 
   const colors = {
@@ -565,16 +570,38 @@
       svg.appendChild(p);
     }
 
+    function label(x, y, text, color) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x);
+      t.setAttribute("y", y);
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "11");
+      t.setAttribute("font-family", "Consolas, monospace");
+      t.setAttribute("fill", color);
+      t.setAttribute("paint-order", "stroke");
+      t.setAttribute("stroke", "#0f1117");
+      t.setAttribute("stroke-width", "4");
+      t.textContent = text;
+      svg.appendChild(t);
+    }
+
     for (const [a, b] of solidEdges) {
       const s = rectOf(a), t = rectOf(b);
       const mx = (s.right + t.left) / 2;
       path(`M ${s.right} ${s.cy} C ${mx} ${s.cy}, ${mx} ${t.cy}, ${t.left} ${t.cy}`,
            colors[a] || "#8b93a7", false);
     }
-    for (const [a, b] of dashedEdges) {
+    for (const [a, b, txt] of dashedEdges) {
       const s = rectOf(a), t = rectOf(b);
       path(`M ${s.cx} ${s.top} C ${s.cx} ${s.top - 90}, ${t.cx} ${t.bottom + 90}, ${t.cx} ${t.bottom}`,
            "#f0649c", true);
+      if (txt) label((s.cx + t.cx) / 2, (s.top + t.bottom) / 2, txt, "#f0879c");
+    }
+    for (const [a, b, txt] of selectEdges) {
+      const s = rectOf(a), t = rectOf(b);
+      path(`M ${s.cx} ${s.top} C ${s.cx} ${s.top - 120}, ${t.cx} ${t.bottom + 120}, ${t.cx} ${t.bottom}`,
+           "#7c5cff", true);
+      if (txt) label((s.cx + t.cx) / 2, (s.top + t.bottom) / 2, txt, "#b9a8ff");
     }
   }
 
